@@ -58,33 +58,33 @@ NOTE_VALUES = {"verifier.result": {"pass", "concerns", "fail"}}
 MODE_VALUES = {"mode.chosen": {"direct", "team"}}
 
 EVENT_DESCRIPTION = {
-    "change.created":    "OpenSpec change directory just came into being",
-    "artifact.added":    "Wrote a new artifact file (proposal/design/specs/tasks)",
-    "artifact.revised":  "Edited an existing artifact after it was first written",
-    "mode.chosen":       "Apply phase started; declares direct vs team execution",
-    "task.start":        "Began work on a specific task id from tasks.md",
-    "task.complete":     "Finished a task; checkbox flipped to [x]",
-    "task.blocked":      "Paused a task on an external dependency or unknown",
-    "verifier.result":   "Independent verifier returned a verdict for a task",
-    "decision":          "Load-bearing structural call inside a turn",
-    "handoff":           "Last line before stopping; first line on resume",
-    "archive":           "Change moved into openspec/changes/archive/",
-    "skill.invoked":     "User-invoked skill ran against this change",
-    "agent.spawned":     "Fan-out subagent group launched (e.g. team:debate)",
+    "change.created": "OpenSpec change directory just came into being",
+    "artifact.added": "Wrote a new artifact file (proposal/design/specs/tasks)",
+    "artifact.revised": "Edited an existing artifact after it was first written",
+    "mode.chosen": "Apply phase started; declares direct vs team execution",
+    "task.start": "Began work on a specific task id from tasks.md",
+    "task.complete": "Finished a task; checkbox flipped to [x]",
+    "task.blocked": "Paused a task on an external dependency or unknown",
+    "verifier.result": "Independent verifier returned a verdict for a task",
+    "decision": "Load-bearing structural call inside a turn",
+    "handoff": "Last line before stopping; first line on resume",
+    "archive": "Change moved into openspec/changes/archive/",
+    "skill.invoked": "User-invoked skill ran against this change",
+    "agent.spawned": "Fan-out subagent group launched (e.g. team:debate)",
     "context.compacted": "PreCompact hook fired (autoemit, not by skills)",
-    "turn.start":        "Bookend opened; logged BEFORE work in response to a prompt",
-    "turn.end":          "Bookend closed; logged AFTER finishing the prompt",
+    "turn.start": "Bookend opened; logged BEFORE work in response to a prompt",
+    "turn.end": "Bookend closed; logged AFTER finishing the prompt",
 }
 
 FIELD_DESCRIPTION = {
-    "ref":    "Task id, file path, or artifact id this event refers to",
-    "input":  "What initiated this event (<=200 chars; the user/actor's ask)",
+    "ref": "Task id, file path, or artifact id this event refers to",
+    "input": "What initiated this event (<=200 chars; the user/actor's ask)",
     "output": "What actually changed or was decided (<=200 chars)",
-    "mode":   "Execution mode for the apply run: direct | team",
-    "note":   "Verifier verdict: pass | concerns | fail",
-    "name":   "Skill identifier (e.g. showboat, retro, priya)",
-    "count":  "Integer count of subagents spawned in this fan-out",
-    "kind":   "Label for the fan-out group (e.g. lens-scan, debate, spike)",
+    "mode": "Execution mode for the apply run: direct | team",
+    "note": "Verifier verdict: pass | concerns | fail",
+    "name": "Skill identifier (e.g. showboat, retro, priya)",
+    "count": "Integer count of subagents spawned in this fan-out",
+    "kind": "Label for the fan-out group (e.g. lens-scan, debate, spike)",
 }
 
 USAGE = """\
@@ -209,8 +209,7 @@ def parse_kv(args: list[str]) -> dict[str, str]:
     for raw in args:
         if "=" not in raw:
             raise SystemExit(
-                f"Error: '{raw}' is not k=v form.\n"
-                "  Each extra argument must be key=value."
+                f"Error: '{raw}' is not k=v form.\n  Each extra argument must be key=value."
             )
         k, v = raw.split("=", 1)
         if not k:
@@ -223,9 +222,7 @@ def schema_table() -> str:
     rows = []
     for ev in EVENT_PHASE:
         req = ", ".join(REQUIRED_FIELDS[ev]) or "(none)"
-        rows.append(
-            f"  {ev:<18} phase={EVENT_PHASE[ev]:<10} required: {req}"
-        )
+        rows.append(f"  {ev:<18} phase={EVENT_PHASE[ev]:<10} required: {req}")
         rows.append(f"      {EVENT_DESCRIPTION[ev]}")
     field_rows = [f"  {f:<8} {FIELD_DESCRIPTION[f]}" for f in FIELD_DESCRIPTION]
     extras = [
@@ -254,7 +251,8 @@ def journal_path(root: Path, change: str) -> Path:
         return direct / "journal.jsonl"
     if archive_root.is_dir():
         matches = sorted(
-            p for p in archive_root.iterdir()
+            p
+            for p in archive_root.iterdir()
             if p.is_dir() and (p.name == change or p.name.endswith(f"-{change}"))
         )
         if len(matches) == 1:
@@ -291,8 +289,7 @@ def cmd_add(
                 break
         fail(
             2,
-            f"Error: unknown event '{event}'.\n{suggest}"
-            "  Run with no args for the vocabulary.",
+            f"Error: unknown event '{event}'.\n{suggest}  Run with no args for the vocabulary.",
         )
 
     missing = [f for f in REQUIRED_FIELDS[event] if f not in kv]
@@ -388,7 +385,7 @@ def cmd_show(change: str, limit: int) -> int:
         except json.JSONDecodeError:
             print(f"!! malformed: {raw[:120]}")
             continue
-        head = f"{rec.get('ts','?')}  {rec.get('event','?'):<18}"
+        head = f"{rec.get('ts', '?')}  {rec.get('event', '?'):<18}"
         ref = rec.get("ref")
         if ref:
             head += f"  ref={ref}"
@@ -486,8 +483,14 @@ def main(argv: list[str]) -> int:
     # Split argv into flags and positionals manually so flags can appear
     # anywhere on the line (before, between, or after positionals).
     NO_VALUE = {
-        "--schema", "--version", "--json", "--verbose", "-v",
-        "-h", "--help", "--allow-truncate",
+        "--schema",
+        "--version",
+        "--json",
+        "--verbose",
+        "-v",
+        "-h",
+        "--help",
+        "--allow-truncate",
     }
     TAKES_VALUE = {"--limit", "--input-file", "--output-file"}
     flag_argv: list[str] = []
@@ -508,9 +511,7 @@ def main(argv: list[str]) -> int:
             flag_argv.append(tok)
             i += 1
         elif tok.startswith("-") and tok != "-" and "=" not in tok:
-            sys.stderr.write(
-                f"Error: unknown flag '{tok}'. Run with no args for usage.\n"
-            )
+            sys.stderr.write(f"Error: unknown flag '{tok}'. Run with no args for usage.\n")
             return 1
         else:
             positionals.append(tok)
@@ -540,8 +541,7 @@ def main(argv: list[str]) -> int:
 
     if len(positionals) < 2:
         sys.stderr.write(
-            "Error: need at least <change> <event|verb>.\n"
-            "  Run with no args for usage.\n"
+            "Error: need at least <change> <event|verb>.\n  Run with no args for usage.\n"
         )
         return 1
 
@@ -557,9 +557,7 @@ def main(argv: list[str]) -> int:
         kv["input"] = Path(args.input_file).read_text(encoding="utf-8")
     if args.output_file and "output" not in kv:
         kv["output"] = Path(args.output_file).read_text(encoding="utf-8")
-    return cmd_add(
-        change, verb, kv, args.json, args.verbose, args.allow_truncate
-    )
+    return cmd_add(change, verb, kv, args.json, args.verbose, args.allow_truncate)
 
 
 if __name__ == "__main__":
