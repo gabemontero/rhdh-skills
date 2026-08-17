@@ -1,0 +1,3 @@
+interface:
+  display_name: "OpenSpec Propose"
+  short_description: "Describe what to build, get a complete ready-to-implement OpenSpec change back"

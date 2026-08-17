@@ -23,6 +23,7 @@ are editorial and are stripped at install:
 - `skills/plugins/`
 - `skills/ci/`
 - `skills/release/`
+- `skills/refinement/`
 - `skills/reference/`
 - `skills/meta/`
 

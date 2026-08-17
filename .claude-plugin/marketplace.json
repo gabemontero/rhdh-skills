@@ -20,6 +20,27 @@
       ]
     },
     {
+      "name": "refinement",
+      "source": "./",
+      "description": "Refinement skills from the RHDH pack",
+      "skills": [
+        "./skills/refinement/openspec-new-change",
+        "./skills/reference/rhdh-spec-driven-schema",
+        "./skills/refinement/openspec-continue-change",
+        "./skills/refinement/openspec-ff-change",
+        "./skills/refinement/openspec-propose",
+        "./skills/refinement/openspec-apply-change",
+        "./skills/reference/openspec-journal",
+        "./skills/refinement/openspec-archive-change",
+        "./skills/refinement/openspec-bulk-archive-change",
+        "./skills/refinement/openspec-explore",
+        "./skills/refinement/openspec-onboard",
+        "./skills/refinement/openspec-sync-specs",
+        "./skills/refinement/openspec-verify-change",
+        "./skills/refinement/openspec-audit-change"
+      ]
+    },
+    {
       "name": "release",
       "source": "./",
       "description": "Release skills from the RHDH pack",
