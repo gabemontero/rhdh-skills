@@ -12,10 +12,6 @@
       {
         "name": "handoff",
         "source": "mattpocock/skills"
-      },
-      {
-        "name": "humanizer",
-        "source": "blader/humanizer"
       }
     ]
   },
@@ -36,7 +32,8 @@
       "requiresSkills": [
         "rhdh-jira-api",
         "rhdh-jira-authoring",
-        "mutation-gate"
+        "mutation-gate",
+        "prose-editing"
       ],
       "requiresExternalSkills": [
         "grilling"
@@ -47,7 +44,8 @@
       "category": "jira",
       "invocation": "model",
       "requiresSkills": [
-        "mutation-gate"
+        "mutation-gate",
+        "prose-editing"
       ],
       "requiresExternalSkills": []
     },
@@ -57,7 +55,8 @@
       "invocation": "model",
       "requiresSkills": [
         "rhdh-jira-api",
-        "rhdh-jira-authoring"
+        "rhdh-jira-authoring",
+        "prose-editing"
       ],
       "optionalSkills": [
         "mutation-gate"
@@ -88,7 +87,8 @@
       "invocation": "model",
       "requiresSkills": [
         "rhdh-jira-api",
-        "mutation-gate"
+        "mutation-gate",
+        "prose-editing"
       ],
       "requiresExternalSkills": []
     },
@@ -113,7 +113,8 @@
       "category": "plugins",
       "invocation": "model",
       "requiresSkills": [
-        "mutation-gate"
+        "mutation-gate",
+        "prose-editing"
       ],
       "optionalSkills": [
         "rhdh-local",
@@ -133,7 +134,9 @@
       "category": "plugins",
       "invocation": "model",
       "requiresSkills": [
-        "rhdh-forge"
+        "rhdh-forge",
+        "mutation-gate",
+        "prose-editing"
       ],
       "requiresExternalSkills": [
         "grilling"
@@ -150,7 +153,10 @@
       "name": "rhdh-plugin-midstream-propagate",
       "category": "plugins",
       "invocation": "model",
-      "requiresSkills": [],
+      "requiresSkills": [
+        "mutation-gate",
+        "prose-editing"
+      ],
       "requiresExternalSkills": []
     },
     {
@@ -175,7 +181,8 @@
       "invocation": "model",
       "requiresSkills": [
         "mutation-gate",
-        "rhdh-forge"
+        "rhdh-forge",
+        "prose-editing"
       ],
       "optionalSkills": [
         "rhdh-jira-api",
@@ -189,14 +196,13 @@
       "category": "plugins",
       "invocation": "model",
       "requiresSkills": [
-        "mutation-gate"
+        "mutation-gate",
+        "prose-editing"
       ],
       "optionalSkills": [
         "rhdh-forge"
       ],
-      "requiresExternalSkills": [
-        "humanizer"
-      ]
+      "requiresExternalSkills": []
     },
     {
       "name": "rhdh-test-placement",
@@ -220,7 +226,19 @@
       "name": "rhdh-konflux-tasks",
       "category": "ci",
       "invocation": "model",
-      "requiresSkills": [],
+      "requiresSkills": [
+        "mutation-gate"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "rhdh-konflux-rpa",
+      "category": "ci",
+      "invocation": "model",
+      "requiresSkills": [
+        "mutation-gate",
+        "rhdh-forge"
+      ],
       "requiresExternalSkills": []
     },
     {
@@ -234,7 +252,11 @@
       "name": "rhdh-prow-release-branch",
       "category": "ci",
       "invocation": "model",
-      "requiresSkills": [],
+      "requiresSkills": [
+        "mutation-gate",
+        "prose-editing",
+        "rhdh-forge"
+      ],
       "requiresExternalSkills": []
     },
     {
@@ -269,10 +291,10 @@
       "name": "rhdh-release-announce",
       "category": "release",
       "invocation": "model",
-      "requiresSkills": [],
-      "requiresExternalSkills": [
-        "humanizer"
-      ]
+      "requiresSkills": [
+        "prose-editing"
+      ],
+      "requiresExternalSkills": []
     },
     {
       "name": "rhdh-release-schedule",
@@ -301,7 +323,8 @@
       "invocation": "model",
       "requiresSkills": [
         "rhdh-platform-lifecycle",
-        "rhdh-release-schedule"
+        "rhdh-release-schedule",
+        "prose-editing"
       ],
       "requiresExternalSkills": []
     },
@@ -314,6 +337,13 @@
     },
     {
       "name": "mutation-gate",
+      "category": "reference",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "prose-editing",
       "category": "reference",
       "invocation": "model",
       "requiresSkills": [],
@@ -346,7 +376,9 @@
       "name": "rhdh-jira-authoring",
       "category": "reference",
       "invocation": "model",
-      "requiresSkills": [],
+      "requiresSkills": [
+        "prose-editing"
+      ],
       "requiresExternalSkills": []
     },
     {
@@ -480,6 +512,15 @@
       "category": "meta",
       "invocation": "human",
       "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "clean-prose",
+      "category": "meta",
+      "invocation": "human",
+      "requiresSkills": [
+        "prose-editing"
+      ],
       "requiresExternalSkills": []
     },
     {
