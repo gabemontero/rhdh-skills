@@ -39,8 +39,7 @@ agent="${OPEN_SPEC_JOURNAL_AGENT:-Claude Code}"
 
 # Pick the most recently modified non-archive journal.
 journal=$(find "${changes_dir}" -mindepth 2 -maxdepth 3 -name journal.jsonl \
-    -not -path "*/archive/*" -print 2>/dev/null \
-    | xargs -I {} stat -f '%m {}' {} 2>/dev/null \
+    -not -path "*/archive/*" -exec stat -f '%m %N' {} + 2>/dev/null \
     | sort -rn | head -n 1 | awk '{ $1=""; print substr($0,2) }')
 
 [ -n "${journal}" ] || exit 0

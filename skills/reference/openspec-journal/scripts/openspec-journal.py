@@ -11,6 +11,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import NoReturn
 
 VERSION = "0.2.0"
 MAX_SUMMARY = 200
@@ -198,7 +199,7 @@ def find_openspec_root(start: Path) -> Path:
     )
 
 
-def fail(code: int, msg: str) -> "NoReturn":  # type: ignore[name-defined]
+def fail(code: int, msg: str) -> NoReturn:
     sys.stderr.write(msg + ("\n" if not msg.endswith("\n") else ""))
     sys.exit(code)
 
