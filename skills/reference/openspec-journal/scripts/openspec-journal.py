@@ -272,10 +272,7 @@ def journal_path(root: Path, change: str) -> Path:
             p
             for p in archive_root.iterdir()
             if p.is_dir()
-            and (
-                p.name == change
-                or (ARCHIVE_DATE_PREFIX.match(p.name) and p.name[11:] == change)
-            )
+            and (p.name == change or (ARCHIVE_DATE_PREFIX.match(p.name) and p.name[11:] == change))
         )
         if len(matches) == 1:
             return matches[0] / "journal.jsonl"

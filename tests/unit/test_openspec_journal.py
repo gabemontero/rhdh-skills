@@ -35,13 +35,9 @@ def workspace(tmp_path: Path) -> Path:
 
 
 def test_write_and_read_round_trip(workspace: Path) -> None:
-    result = run(
-        workspace, "data-export", "decision", "input=Chose CSV", "output=Done"
-    )
+    result = run(workspace, "data-export", "decision", "input=Chose CSV", "output=Done")
     assert result.returncode == 0, result.stderr
-    line = (
-        workspace / "openspec/changes/data-export/journal.jsonl"
-    ).read_text().strip()
+    line = (workspace / "openspec/changes/data-export/journal.jsonl").read_text().strip()
     record = json.loads(line)
     assert record["event"] == "decision"
     assert record["input"] == "Chose CSV"
