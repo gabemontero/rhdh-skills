@@ -48,7 +48,7 @@ one. It performs no work itself.
 and the single source of truth for membership. This file does not restate it.
 
 Three skills are human-invoked and never selected automatically: `/ask-rhdh`,
-`/setup-rhdh-skills`, and `/clean-prose`. The other 41 are model-invoked, and can
+`/setup-rhdh-skills`, and `/clean-prose`. The other 42 are model-invoked, and can
 also be called by name.
 
 Skills are grouped into six folders:
@@ -56,7 +56,7 @@ Skills are grouped into six folders:
 | Folder | Covers |
 | --- | --- |
 | `jira/` | Creating, refining, updating, and reporting on RHIDP, RHDHPLAN, RHDHBUGS, and RHDHSUPP work, plus sprint ceremonies and linking PRs to issues. |
-| `plugins/` | Authoring, wiring, exporting, and fixing Backstage dynamic plugins; the overlays repository; local RHDH; opening and reviewing pull requests; midstream propagation. |
+| `plugins/` | Authoring, wiring, exporting, and fixing Backstage dynamic plugins; the overlays repository; local RHDH; opening and reviewing pull requests; testing rhdh-operator PRs on a cluster; midstream propagation. |
 | `ci/` | Prow job configuration and nightly triggers, Konflux and Tekton task updates, release-data admission tags, base images, and Yarn bumps. |
 | `release/` | Release status and readiness, milestone schedules, freeze announcements, teams, test-plan review, platform lifecycle, and the plugin CVE export. |
 | `reference/` | The reusable layer other skills invoke by name: repository and version context, the forge read seam, the write gate, the prose pass, and the Jira and Backstage reference material. |

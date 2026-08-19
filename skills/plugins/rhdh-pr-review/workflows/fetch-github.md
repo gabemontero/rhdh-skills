@@ -1,6 +1,7 @@
 # Workflow: Fetch GitHub PR Context
 
-Fetch PR metadata, diff, linked issues, existing comments, and CI status from GitHub. Produces the PR context that `review-code.md` and `review-operator-pr.md` analyze.
+Fetch PR metadata, diff, linked issues, existing comments, and CI status from
+GitHub. Produces the PR context that `review-code.md` analyzes.
 
 ## Script
 
@@ -45,9 +46,6 @@ existingReviews: [{user, state, body}, ...]
 ciStatus: "pass" | "fail" | "pending" | "unknown"
 ```
 
-After the linked-issues ask below, carry `specSource` with that context: the
-linked issue bodies, or the PR body.
-
 ## Linked issues
 
 `linkedIssues` carries the title, body, labels, and state of each GitHub issue
@@ -71,12 +69,11 @@ workflow.
 
 ## CI status
 
-`ciStatus` comes from `gh pr checks`. When it is `unknown`, run `gh pr checks`
-on the PR before treating CI as missing or failed. `/rhdh-forge` owns failed-log
-reads.
+`ciStatus` comes from `gh pr checks`. When it is `unknown`, invoke `/rhdh-forge`
+to confirm against `gh run list --branch` before treating CI as missing or
+failed. `/rhdh-forge` owns failed-log reads.
 
 ## After fetching
 
-Proceed to the workflow the router selected (typically `review-code.md`). Carry
-the complete context forward, including `specSource` — downstream workflows read
-these fields by name.
+Proceed to `review-code.md`. Carry the complete context forward. Downstream
+workflows read these fields by name, including `specSource`.

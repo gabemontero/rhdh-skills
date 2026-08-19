@@ -1,8 +1,10 @@
 # Workflow: Review Code
 
-Platform-agnostic code analysis. Reads the PR context from `fetch-github.md` (or a future `fetch-gitlab.md`) and produces the review draft a posting workflow sends.
+Platform-agnostic code analysis. Reads the PR context from `fetch-github.md`
+and produces the review draft a posting workflow sends.
 
-Work from that context. The one exception is reading full file contents at HEAD to verify findings, which needs forge-specific commands (see Reading source at HEAD).
+Work from that context. The one exception is reading full file contents at HEAD
+to verify findings (see Reading source at HEAD).
 
 ## Mindset
 
@@ -14,21 +16,26 @@ You are a senior team member reviewing a contribution. Your goal is to help the 
 
 ## Step 1: Team
 
-Specialists named in the original request are the specialist set. Do not re-ask.
+`/code-review`'s Standards and Spec agents run on every draft-review path.
+Dispatch **Adversarial** on every `/code-review` run. Load
+`../references/review-perspectives.md` for that prompt and for any further lens.
 
-The default team is `/code-review`'s Standards and Spec agents. A PR is **very small** when `files[]` length is ≤ 3 **and** `totalAdditions + totalDeletions` is under 80 **and** the user did not ask for a team. Fan out further only when it is not very small, or the user named extras.
-
-Load `../references/review-perspectives.md` when fanning out. Adversarial fires when the diff adds a script, hook, parser, or path/auth handling, or when the user asked; skip it for README-only changes.
+Specialists named in the original request join that set. Add another perspective
+from that reference when you recommend it from the diff, or when the user named
+it. Do not re-ask.
 
 Use `specSource` from fetch as the Spec contract for `/code-review`. Spec still runs.
 
 ## Step 2: Worktree, then `/code-review`
 
-If `git rev-parse HEAD` is not `changeRequest.headSha`, or more than a handful of full files need reading, create a git worktree at that SHA. For an RHDH repository, `/rhdh-context` locates the checkout to branch from. Pass the worktree path into `/code-review` and any other subagents. Remove the worktree after the GitHub post, or after the analysis-only draft.
+If `git rev-parse HEAD` is not `changeRequest.headSha`, create a git worktree at
+that SHA. For an RHDH repository, `/rhdh-context` locates the checkout to branch
+from. Pass the worktree path into `/code-review` and any other subagents. Remove
+the worktree after the GitHub post, or after the analysis-only draft.
 
 Invoke `/code-review` with the PR base as the fixed point and `specSource` as the spec. Present the Standards and Spec reports as their own reports. Do not paste them as the GitHub review. Draft later from verified findings.
 
-When dispatching extra reviewers, each receives:
+When dispatching Adversarial or extra reviewers, each receives:
 
 - The worktree path when one exists
 - The diff from `diff`
@@ -43,9 +50,8 @@ They verify against HEAD. They do not write GitHub review prose.
 When the diff alone is insufficient to judge a finding, read the full file at HEAD. Prefer the worktree when one exists. Otherwise use `repository` and `changeRequest.headSha` from the fetched context:
 
 - **GitHub**: `gh api repos/{repo}/contents/{path}?ref={head_sha} -H "Accept: application/vnd.github.raw+json"`
-- **GitLab**: `glab api projects/{id}/repository/files/{path}/raw?ref={head_sha}`
 
-This is the one place where forge awareness leaks into the analysis — prefer the diff when possible.
+Prefer the diff when it is enough.
 
 ## Step 3: Verify every finding (critical)
 
@@ -59,11 +65,9 @@ Reviewers will produce false positives. Verify each finding against actual code 
 - Misreads what the code actually does
 - Matches existing codebase conventions (the PR follows the project's style, not the reviewer's preference)
 
-**For each linked requirement, verify:**
-
-- Addressed in the diff?
-- Tested?
-- Anything from the issue's scope missing? (Author may be intentionally splitting work — note, don't block.)
+**For each finding `/code-review` Spec reported**, verify it against code at
+HEAD. Note anything from the issue's scope that is missing; the author may be
+intentionally splitting work — note, don't block.
 
 Present a **finding inventory** to the user before drafting: `file:line`, category (`question` / `observation` / `fix`), and a one-line label only. This is a triage list for what to include — **not** review prose and **not** the GitHub draft. Do not write full comment bodies here. Skip the inventory only when the user already said to proceed to a draft.
 
@@ -83,13 +87,13 @@ If `existingReviews` shows you've already left a top-level comment on this PR, a
 
 ### Inline comments
 
-One inline per merge-shaped problem or lasting rule. Cluster nits into one comment or a single top-level "also" paragraph. A finding that neither prevents a wrong write nor teaches something that will still be true next month does not get its own inline.
+One inline per merge-shaped problem or lasting rule. Group nits into one comment or a single top-level "also" paragraph. A finding that neither prevents a wrong write nor teaches something that will still be true next month does not get its own inline.
 
 Write each comment as natural prose — a short paragraph explaining the issue and why it matters. Avoid bullet lists, bold headers, and over-structured formatting.
 
 **Guide, don't dictate.** Assume deliberate choices. When the design intent is unclear, ask why before proposing alternatives. Explain reasoning only when the fix isn't obvious. Finding `type: "fix"` means "propose a direction," not "paste a patch" — still guide unless a GitHub `suggestion` block applies below.
 
-**GitHub `suggestion` blocks:** use them **only** when the fix is small and obvious — one clear replacement hunk the author can apply as-is. The suggestion must be the full replacement for the commented range. If the fix spans a later line, extend the comment range or drop the fence and leave guidance. Otherwise leave a question or guidance without a `suggestion` block.
+A `suggestion` fence is the full replacement for the commented range, or there is no fence.
 
 ### Edit before show-user
 
@@ -127,6 +131,7 @@ findings[]
 └── body: "comment text, optionally with ```suggestion block when allowed"
 ```
 
-`type` is the finding kind for triage. A GitHub `suggestion` fence inside `body` is separate and only allowed for a complete replacement of the commented range (see Step 4).
+`type` is the finding kind for triage. A GitHub `suggestion` fence inside `body`
+is separate (see Step 4).
 
 **Do not post the review.** If the router selected a posting workflow, hand that draft to it. If analysis-only, stop after presenting the edited draft (Step 5).
