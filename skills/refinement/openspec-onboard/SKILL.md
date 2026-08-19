@@ -113,8 +113,8 @@ After all tasks, confirm completion and move to archiving.
 
 Explain archiving moves the change to
 `openspec/changes/archive/YYYY-MM-DD-<name>/` and becomes part of the
-project's decision history. Run `openspec archive "<name>"` and show the
-archive location.
+project's decision history. Invoke `/openspec-archive-change` for `<name>`
+and show the archive location.
 
 ## Phase 11: Recap and next steps
 
@@ -123,18 +123,17 @@ Recap the full cycle (Explore -> New -> Proposal -> Specs -> Design -> Tasks
 
 | Command | What it does |
 |---|---|
-| `/openspec-propose` | Create a change and generate all artifacts |
+| `/openspec-ff-change` | Propose a change and generate all artifacts in one pass |
 | `/openspec-explore` | Think through problems before/during work |
 | `/openspec-apply-change` | Implement tasks from a change |
 | `/openspec-archive-change` | Archive a completed change |
 | `/openspec-new-change` | Start a new change, step through artifacts one at a time |
 | `/openspec-continue-change` | Continue working on an existing change |
-| `/openspec-ff-change` | Fast-forward: create all artifacts at once |
 | `/openspec-audit-change` | Audit artifacts for cross-artifact consistency (pre-implementation) |
 | `/openspec-verify-change` | Verify implementation matches artifacts (post-implementation) |
 | `/grilling` (external, optional) | Resolve a genuinely open design question before moving to tasks |
 
-Close with: "Try `/openspec-propose` on something you actually want to build."
+Close with: "Try `/openspec-ff-change` on something you actually want to build."
 
 ## Graceful exit handling
 

@@ -423,15 +423,6 @@
       "requiresExternalSkills": []
     },
     {
-      "name": "openspec-propose",
-      "category": "refinement",
-      "invocation": "model",
-      "requiresSkills": [
-        "rhdh-spec-driven-schema"
-      ],
-      "requiresExternalSkills": []
-    },
-    {
       "name": "openspec-apply-change",
       "category": "refinement",
       "invocation": "model",

@@ -1,6 +1,6 @@
 # The OpenSpec refinement workflow
 
-`skills/refinement/` holds the OpenSpec artifact-driven change workflow: twelve
+`skills/refinement/` holds the OpenSpec artifact-driven change workflow: eleven
 model-invoked skills that create, implement, check, and archive a change under
 `openspec/changes/<name>/`. None of them are phase-locked — `openspec-explore`
 and `openspec-apply-change` are explicitly usable at any point — but most
@@ -48,7 +48,7 @@ pace and framing:
 | --- | --- |
 | `/openspec-new-change` | Creates the change directory and stops before drafting anything. |
 | `/openspec-continue-change` | Creates exactly the next ready artifact, one at a time. |
-| `/openspec-propose` / `/openspec-ff-change` | Generate every remaining artifact in one pass. Identical mechanics — `propose` is the softer first-change framing, `ff-change` the explicit "do it all now" for an existing change. |
+| `/openspec-ff-change` | Propose a change and generate every artifact in one pass — for a brand-new change or to finish an existing one. |
 
 ## Closing a change
 
@@ -72,12 +72,12 @@ pace and framing:
 through the full cycle above — explore, create, propose, implement, archive —
 narrating each step against the user's own codebase, and ends by naming which
 of the skills above to reach for next. Use it for "walk me through OpenSpec"
-rather than as a dependency of the other eleven skills; it does not invoke
+rather than as a dependency of the other ten skills; it does not invoke
 them by name, it teaches the same rhythm they implement.
 
 ## Dependencies
 
-Every artifact-creating skill (`new-change`, `continue-change`, `propose`,
+Every artifact-creating skill (`new-change`, `continue-change`,
 `ff-change`) requires the `rhdh-spec-driven-schema` reference skill for the
 artifact templates and instructions. `apply-change` additionally requires
 `openspec-journal` to record implementation history. `audit-change` uses

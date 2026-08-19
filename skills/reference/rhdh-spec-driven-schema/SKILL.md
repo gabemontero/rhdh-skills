@@ -2,14 +2,13 @@
 name: rhdh-spec-driven-schema
 description: >-
   Owns RHDH's project-local OpenSpec workflow definition — the
-  `rhdh-spec-driven` schema (proposal -> specs -> design -> tasks -> apply),
+  `rhdh-spec-driven` schema (proposal -> {specs, design} -> tasks -> apply),
   its four artifact templates, the Canonical Touchpoints rule that ties a
   change back to `specifications/prd/`, `specifications/adr/`, and
   `openspec/specs/<capability>/spec.md`, and the shared artifact-creation-loop
   mechanics every openspec-* skill drives through the `openspec` CLI. Invoked
   by name from openspec-new-change, openspec-continue-change,
-  openspec-ff-change, openspec-propose, and openspec-onboard; not a
-  standalone entry point. Use for "what does the spec-driven schema require",
+  openspec-ff-change, and openspec-onboard; not a standalone entry point. Use for "what does the spec-driven schema require",
   "what goes in Canonical Touchpoints", "how do I fill in an artifact
   template", or "why did an artifact instruction reject my capability name".
 compatibility: "openspec CLI on PATH for --schema rhdh-spec-driven. Read-only reference; no external writes of its own."

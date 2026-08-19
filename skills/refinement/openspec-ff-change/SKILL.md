@@ -1,13 +1,15 @@
 ---
 name: openspec-ff-change
 description: >-
-  Fast-forwards an existing or brand-new OpenSpec change through every
-  artifact required for implementation, in one pass, with progress tracked
-  via TodoWrite. Use for "fast-forward this change", "generate all the
-  artifacts now", "skip the step-by-step and just build the proposal/specs/
-  design/tasks", or "get this ready to implement". For the friendlier
-  first-run framing of the same all-in-one generation, see openspec-propose;
-  for one artifact at a time, see openspec-continue-change.
+  Proposes an OpenSpec change and generates every artifact it needs for
+  implementation — proposal, specs, design, tasks — in one pass, for a
+  brand-new or an existing change, with progress tracked via TodoWrite. Use
+  for "propose a change for X", "I want to build X, write it up", "give me a
+  proposal with design and tasks ready to implement", "fast-forward this
+  change", "generate all the artifacts now", or "get this ready to
+  implement" — including someone's first change. For one artifact at a time,
+  see openspec-continue-change; to scaffold the folder without writing
+  anything, see openspec-new-change.
 compatibility: "Requires the openspec CLI on PATH."
 ---
 
@@ -33,8 +35,8 @@ without pausing between them, then hand off to implementation.
    `artifacts` (status + dependencies for each).
 4. **Create every required artifact in dependency order.** Track progress
    with TodoWrite. For each artifact whose dependencies are satisfied, follow
-   the artifact creation loop in `/rhdh-spec-driven-schema`
-   (`references/artifact-loop.md`) — read dependencies, use the template,
+   the artifact creation loop in `/rhdh-spec-driven-schema` — read
+   dependencies, use the template,
    apply context/rules without copying them into the file, write to
    `outputPath`. Re-check status after each write; stop once every ID in
    `applyRequires` reports `status: "done"`.
@@ -54,8 +56,10 @@ Change name and location, every artifact created with a one-line description,
 - Create every artifact `applyRequires` needs — not a subset.
 - Always read dependency artifacts before creating the next one.
 - Verify each artifact file exists after writing, before moving on.
-- If a change with that name already exists, suggest
-  `/openspec-continue-change` on the existing change instead of overwriting it.
+- If a change with that name already exists, do not re-scaffold or overwrite
+  artifacts already written. Read current status and fill only the remaining
+  `applyRequires` artifacts in dependency order — this skill finishes an
+  existing change as well as it starts a new one.
 
 ## Completion
 

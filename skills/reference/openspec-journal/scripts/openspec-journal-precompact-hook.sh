@@ -32,31 +32,46 @@ set -u
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [ -n "${repo_root}" ] || exit 0
 
-helper="${repo_root}/scripts/openspec-journal.py"
+# The helper ships beside this hook in the skill directory, not under the
+# product repo's scripts/. Resolve it relative to this script.
+helper="$(dirname "$0")/openspec-journal.py"
 changes_dir="${repo_root}/openspec/changes"
 agent="${OPEN_SPEC_JOURNAL_AGENT:-Claude Code}"
-[ -x "${helper}" ] && [ -d "${changes_dir}" ] || exit 0
+[ -f "${helper}" ] && [ -d "${changes_dir}" ] || exit 0
 
-# Pick the most recently modified non-archive journal.
-journal=$(find "${changes_dir}" -mindepth 2 -maxdepth 3 -name journal.jsonl \
-    -not -path "*/archive/*" -exec stat -f '%m %N' {} + 2>/dev/null \
-    | sort -rn | head -n 1 | awk '{ $1=""; print substr($0,2) }')
+# Portable mtime in epoch seconds: BSD stat -f, GNU stat -c.
+mtime() { stat -f '%m' "$1" 2>/dev/null || stat -c '%Y' "$1" 2>/dev/null; }
+
+# Pick the most recently modified non-archive journal. find only discovers
+# paths (portable); mtime() ranks them, avoiding non-portable stat in find.
+journal=""
+latest=0
+while IFS= read -r candidate; do
+    [ -n "${candidate}" ] || continue
+    m=$(mtime "${candidate}")
+    case "${m}" in ''|*[!0-9]*) continue ;; esac
+    if [ "${m}" -gt "${latest}" ]; then
+        latest="${m}"
+        journal="${candidate}"
+    fi
+done <<EOF
+$(find "${changes_dir}" -mindepth 2 -maxdepth 3 -name journal.jsonl \
+    -not -path "*/archive/*" 2>/dev/null)
+EOF
 
 [ -n "${journal}" ] || exit 0
 
 # Only journal compactions for changes touched in the last 6 hours; older
 # trails belong to changes the user has likely moved on from.
-journal_mtime=$(stat -f '%m' "${journal}" 2>/dev/null || stat -c '%Y' "${journal}" 2>/dev/null || true)
 now=$(date +%s 2>/dev/null || true)
-case "${journal_mtime}" in ''|*[!0-9]*) exit 0 ;; esac
 case "${now}" in ''|*[!0-9]*) exit 0 ;; esac
-if [ "$((now - journal_mtime))" -gt 21600 ]; then
+if [ "$((now - latest))" -gt 21600 ]; then
     exit 0
 fi
 
 change=$(basename "$(dirname "${journal}")")
 
-"${helper}" "${change}" context.compacted \
+python3 "${helper}" "${change}" context.compacted \
     input="${agent} PreCompact hook fired during ${change}." \
     output="Context compaction observed; chat continuation may follow." \
     >/dev/null 2>&1 || true

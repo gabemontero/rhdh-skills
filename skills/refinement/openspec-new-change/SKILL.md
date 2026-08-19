@@ -1,12 +1,13 @@
 ---
 name: openspec-new-change
 description: >-
-  Starts a new OpenSpec change using the rhdh-spec-driven artifact workflow
-  and shows the first artifact's template without writing it. Use for "start
-  a new change", "create a change for X", "I want to build/fix Y" when
-  nothing exists yet for it, or "what's the first artifact I need". Creates
-  the change directory and stops — it does not draft or write any artifact
-  content, and it does not implement code.
+  Scaffolds a new OpenSpec change directory and shows the first artifact's
+  template without writing it. Use for "start a new change", "scaffold a
+  change", "set up a change for X", or "what's the first artifact I need" —
+  when the user wants the folder and the first template, not a drafted
+  proposal. Creates the change directory and stops — it does not draft or
+  write any artifact content, and it does not implement code. To generate
+  every artifact in one pass, use openspec-ff-change instead.
 compatibility: "Requires the openspec CLI on PATH."
 ---
 
@@ -21,9 +22,13 @@ then stop — drafting content is a separate turn.
    describes what they want to build, derive a kebab-case name (e.g. "add
    user authentication" -> `add-user-auth`). Otherwise ask what they want to
    build or fix; do not proceed without knowing.
-2. **Pick the schema.** Omit `--schema` to use the default (`rhdh-spec-driven`
-   in this repository) unless the user names a specific schema, or asks what
-   workflows exist (`openspec schemas --json`).
+2. **Pick the schema.** Run `openspec schemas --json` to see what this
+   project actually offers. `rhdh-spec-driven` is the default only when the
+   repo's `openspec/` has it configured — its `config.yaml` and
+   `schemas/rhdh-spec-driven/` files live in `/rhdh-spec-driven-schema` and
+   must be present under the repo's `openspec/` for `--schema rhdh-spec-driven`
+   to resolve. If it is not listed, name an available schema instead. Omit
+   `--schema` to take the configured default.
 3. **Create the change directory:**
 
    ```bash

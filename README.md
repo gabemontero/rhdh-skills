@@ -60,7 +60,7 @@ Skills are grouped into seven folders:
 | `release/` | Release status and readiness, milestone schedules, freeze announcements, teams, test-plan review, platform lifecycle, and the plugin CVE export. |
 | `refinement/` | The OpenSpec artifact-driven change workflow: propose, explore, implement, audit, verify, and archive a change. See [the workflow](docs/refinement/refinement-workflow.md). |
 | `reference/` | The reusable layer other skills invoke by name: repository and version context, the forge read seam, the write gate, the OpenSpec journal and RHDH's spec-driven schema, and the Jira and Backstage reference material. |
-| `meta/` | The two human-invoked entry points, plus skill authoring and repository agent-readiness. |
+| `meta/` | The three human-invoked entry points, plus skill authoring and repository agent-readiness. |
 
 ## How skills compose
 

@@ -30,7 +30,6 @@
         "./skills/reference/rhdh-spec-driven-schema",
         "./skills/refinement/openspec-continue-change",
         "./skills/refinement/openspec-ff-change",
-        "./skills/refinement/openspec-propose",
         "./skills/refinement/openspec-apply-change",
         "./skills/reference/openspec-journal",
         "./skills/refinement/openspec-archive-change",

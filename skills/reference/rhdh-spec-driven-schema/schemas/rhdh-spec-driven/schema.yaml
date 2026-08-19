@@ -1,6 +1,6 @@
 name: rhdh-spec-driven
 version: 1
-description: Default OpenSpec workflow - proposal → specs → design → tasks
+description: Default OpenSpec workflow - proposal → {specs, design} → tasks
 artifacts:
   - id: proposal
     generates: proposal.md
@@ -299,7 +299,7 @@ apply:
     Work through pending tasks, mark complete as you go, and pause if you hit
     blockers or need clarification.
 
-    Journal: emit interaction events via `scripts/openspec-journal.py` at
+    Journal: emit interaction events through the `/openspec-journal` skill at
     these points:
       - `mode.chosen` once at apply start (mode + 1-sentence rationale +
         optional `agents=<int>` for the run).
@@ -315,10 +315,9 @@ apply:
         (e.g., `team:debate`); record `count=<int>` and `kind=<label>`.
       - `handoff` as the last line before stopping a session, and the first
         line on resume.
-    `context.compacted` is normally emitted by the PreCompact hook in
-    `scripts/openspec-journal-precompact-hook.sh`, not by skills directly.
+    `context.compacted` is normally emitted by the OpenSpec journal's
+    PreCompact hook, not by skills directly.
 
     `input`/`output` are rejected if longer than the helper's hard limit;
     move long content to design.md or an ADR and reference it from the
-    journal entry. Run `scripts/openspec-journal.py` with no arguments for
-    the contract.
+    journal entry. See `/openspec-journal` for the full contract.

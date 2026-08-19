@@ -5,8 +5,8 @@ description: >-
   one at a time. Use for "continue this change", "what's next", "create the
   next artifact", or when the user wants to progress a change step by step
   rather than generating everything at once. Stops after one artifact; use
-  openspec-ff-change or openspec-propose instead when the user wants every
-  remaining artifact created in one pass.
+  openspec-ff-change instead when the user wants every remaining artifact
+  created in one pass.
 compatibility: "Requires the openspec CLI on PATH."
 ---
 
@@ -33,8 +33,8 @@ stop, so the user reviews each step before the next is generated.
      suggest implementing (`/openspec-apply-change`) or archiving
      (`/openspec-archive-change`). Stop.
    - **An artifact is `ready`** — pick the first ready one and create it by
-     following the artifact creation loop in `/rhdh-spec-driven-schema`
-     (`references/artifact-loop.md`). Create exactly one artifact, then stop.
+     following the artifact creation loop in `/rhdh-spec-driven-schema`.
+     Create exactly one artifact, then stop.
    - **Nothing is ready and nothing is complete** — this should not happen
      with a valid schema; show status and suggest checking for a schema
      issue.

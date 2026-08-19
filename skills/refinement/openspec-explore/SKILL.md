@@ -19,7 +19,7 @@ wherever it goes.
 **Explore mode is for thinking, not implementing.** Read files, search code,
 investigate the codebase — but never write code or implement features. If the
 user asks to implement something, remind them to exit explore mode and use
-`/openspec-propose` or `/openspec-ff-change` first. Creating OpenSpec artifacts
+`/openspec-ff-change` first. Creating OpenSpec artifacts
 when explicitly asked is fine — that captures thinking, it does not implement
 it.
 
@@ -55,7 +55,7 @@ and status, to sense what the user might be working on.
 
 **When no change exists:** think freely. When insight crystallizes, offer —
 without pressure — "This feels solid enough to start a change. Want me to
-create a proposal with `/openspec-propose`?"
+create a proposal with `/openspec-ff-change`?"
 
 **When a change exists:** read its artifacts for context
 (`openspec/changes/<name>/proposal.md`, `design.md`, `tasks.md`, etc.) and
@@ -74,7 +74,7 @@ brief — this is thinking time.
 ## Ending discovery
 
 There is no required ending. Discovery might flow into a proposal ("Ready to
-start? I can create a change with `/openspec-propose`."), result in artifact
+start? I can create a change with `/openspec-ff-change`."), result in artifact
 updates, just provide clarity, or continue later. When things crystallize, a
 brief summary — problem, approach (if one emerged), open questions, next
 steps — is optional, not mandatory. Sometimes the thinking itself is the

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,7 +56,19 @@ REQUIRED_FIELDS = {
 }
 
 NOTE_VALUES = {"verifier.result": {"pass", "concerns", "fail"}}
-MODE_VALUES = {"mode.chosen": {"direct", "team"}}
+MODE_VALUES = {
+    "mode.chosen": {"direct", "team"},
+    "task.complete": {"direct", "team"},
+}
+
+# Fields the caller may never forge via k=v: `ts` is stamped, `event` is the
+# positional verb. `phase` stays overridable — it is a documented, low-stakes
+# categorization consumed before this check (see cmd_add).
+RESERVED_FIELDS = {"ts", "event"}
+# The only free-form extra fields accepted beyond the per-event vocabulary.
+ALLOWED_EXTRA_FIELDS = {"agents", "ctx_pct"}
+# Archived changes are stored date-prefixed as YYYY-MM-DD-<name>.
+ARCHIVE_DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-")
 
 EVENT_DESCRIPTION = {
     "change.created": "OpenSpec change directory just came into being",
@@ -241,6 +254,11 @@ def schema_table() -> str:
 
 
 def journal_path(root: Path, change: str) -> Path:
+    if "/" in change or "\\" in change or ".." in change:
+        raise SystemExit(
+            f"Error: change name {change!r} must be a single path component "
+            "(no '/', '\\', or '..')."
+        )
     change_dir = root / "openspec" / "changes" / change
     if change_dir.is_dir():
         return change_dir / "journal.jsonl"
@@ -253,7 +271,11 @@ def journal_path(root: Path, change: str) -> Path:
         matches = sorted(
             p
             for p in archive_root.iterdir()
-            if p.is_dir() and (p.name == change or p.name.endswith(f"-{change}"))
+            if p.is_dir()
+            and (
+                p.name == change
+                or (ARCHIVE_DATE_PREFIX.match(p.name) and p.name[11:] == change)
+            )
         )
         if len(matches) == 1:
             return matches[0] / "journal.jsonl"
@@ -323,7 +345,13 @@ def cmd_add(
     }
     for key in ("ref", "mode", "note", "actor", "name", "kind", "count"):
         if key in kv:
-            record[key] = kv.pop(key)
+            value = kv.pop(key)
+            if key == "count":
+                try:
+                    value = int(value)
+                except ValueError:
+                    fail(2, f"Error: count='{value}' must be an integer.")
+            record[key] = value
     over_limit: list[tuple[str, int]] = []
     truncated_fields: list[tuple[str, int]] = []
     for key in ("input", "output"):
@@ -349,6 +377,14 @@ def cmd_add(
             "  Force-write the truncated value with --allow-truncate.",
         )
     for key, val in kv.items():
+        if key in RESERVED_FIELDS:
+            fail(2, f"Error: cannot set reserved field '{key}' via k=v.")
+        if key not in ALLOWED_EXTRA_FIELDS:
+            fail(
+                2,
+                f"Error: unknown field '{key}'.\n"
+                f"  Allowed extras: {', '.join(sorted(ALLOWED_EXTRA_FIELDS))}.",
+            )
         record[key] = val
 
     root = find_openspec_root(Path.cwd())

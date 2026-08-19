@@ -42,8 +42,12 @@ guessing.
    offering "Archive all N", "Archive only the ready ones (skip incomplete)",
    or "Cancel". Make clear that choosing "all" archives incomplete changes
    with warnings, not silently.
-8. **Execute per confirmed change**, in the resolved order: sync delta specs
-   if present (agent-driven merge per the resolution), then
+8. **Execute per confirmed change**, in the resolved order: if the change has
+   delta specs to sync, delegate the merge to `/openspec-sync-specs` (via the
+   Task tool, `subagent_type: general-purpose`, with the prompt "Invoke
+   `/openspec-sync-specs` for change '<name>'" plus this change's resolved
+   conflict decision from step 5) — conflict detection and resolution stay
+   here; the merge mechanics belong to that skill. Then
    `mkdir -p openspec/changes/archive && mv openspec/changes/<name>
    openspec/changes/archive/YYYY-MM-DD-<name>`. Track success/failed/skipped
    per change; an existing archive target fails that change but does not stop

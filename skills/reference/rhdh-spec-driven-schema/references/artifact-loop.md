@@ -1,8 +1,8 @@
 # Artifact creation loop
 
 Shared mechanics for turning one `ready` artifact into a written file. Every
-caller (`openspec-new-change`, `openspec-continue-change`, `openspec-ff-change`,
-`openspec-propose`) drives this same loop; only how many artifacts it runs for
+caller (`openspec-new-change`, `openspec-continue-change`,
+`openspec-ff-change`) drives this same loop; only how many artifacts it runs for
 and when it stops differs, and each of those skills states that difference
 itself.
 
