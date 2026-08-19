@@ -6,6 +6,10 @@
     "url": null,
     "requiredExternalSkills": [
       {
+        "name": "code-review",
+        "source": "mattpocock/skills"
+      },
+      {
         "name": "grilling",
         "source": "mattpocock/skills"
       },
@@ -201,7 +205,9 @@
       "optionalSkills": [
         "rhdh-forge"
       ],
-      "requiresExternalSkills": []
+      "requiresExternalSkills": [
+        "code-review"
+      ]
     },
     {
       "name": "rhdh-test-placement",

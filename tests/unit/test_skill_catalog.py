@@ -118,9 +118,9 @@ def test_repository_catalog_exposes_the_approved_composable_skill_set():
     assert set(report["promotedSkills"]) == {entry["name"] for entry in catalog["skills"]}
 
     # These two are contracts rather than inventory: exactly three entry points are
-    # human-invoked, and the pack depends on exactly two external skills.
+    # human-invoked, and the pack depends on exactly three external skills.
     assert set(report["humanInvokedSkills"]) == {"ask-rhdh", "setup-rhdh-skills", "clean-prose"}
-    assert set(report["requiredExternalSkills"]) == {"grilling", "handoff"}
+    assert set(report["requiredExternalSkills"]) == {"code-review", "grilling", "handoff"}
     assert every_promoted_skill_lives_in_a_domain_category(catalog)
 
 

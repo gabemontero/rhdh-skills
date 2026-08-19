@@ -9,7 +9,7 @@ description: >-
   comments, posting a review, testing operator PR images or bundles on a
   cluster, or a combined code and cluster review. For label and merge-readiness
   triage of the overlay PR backlog, use /rhdh-overlay.
-compatibility: "GitHub CLI and Python 3; oc plus an accessible cluster for operator testing."
+compatibility: "GitHub CLI and Python 3; oc plus an accessible cluster for operator testing. Requires the external /code-review skill — analysis is blocked without it."
 ---
 
 # RHDH Pull Request Review
@@ -32,15 +32,26 @@ A bare PR URL or number defaults to code review and post. For an
 `rhdh-operator` PR, offer full review because code and deployable bundle changes
 can diverge, but respect an explicit route.
 
+Load `workflows/fetch-github.md` to gather PR context, including CI confirmation
+and the Spec source. Load `workflows/review-code.md` to run `/code-review`,
+verify, and draft. Load `workflows/post-to-github.md` to post a GitHub review.
+Load `workflows/review-operator-pr.md` to test an operator bundle on a cluster.
+
 ## Review invariants
 
+- `/code-review` runs on every path that drafts a review, including
+  analysis-only. If it is missing, stop, say that `code-review` is missing, and
+  name `/setup-rhdh-skills install`. Present its Standards and Spec reports as
+  their own reports, then draft the GitHub review from verified findings.
+- Specialists named in the original request are the specialist set. The default
+  team is `/code-review`'s two agents. A PR is very small when `files[]` length
+  is ≤ 3, `totalAdditions + totalDeletions` is under 80, and the user did not
+  ask for a team. Fan out further only when it is not very small, or the user
+  asked. Load `references/review-perspectives.md` when fanning out.
+- One inline per merge-shaped problem or lasting rule. Cluster nits into one
+  comment or a single top-level "also" paragraph.
 - Verify every finding against code at the fetched head SHA. Drop stale,
   duplicated, speculative, or convention-conflicting findings.
-- Prefer actionable inline comments. Reserve top-level prose for context and
-  merge blockers; do not repeat every inline finding.
-- Ask which installed specialist skills, if any, the user wants applied after
-  fetch and before deep analysis. Invoke chosen skills by name and give them the
-  fetched PR context; never load their files.
 - Present the complete edited draft and review event for confirmation before
   stating any post operation. An explicit request to post is intent, not approval
   of the exact write.
@@ -53,7 +64,7 @@ can diverge, but respect an explicit route.
 Fetch and analysis are read-only. Posting a GitHub review, posting a test-request
 comment, or changing cluster resources is an external write: invoke the named
 skill `mutation-gate` and follow the gate it owns rather than restating it
-here.
+here. Creating or removing a local git worktree is not that gate.
 
 A review operation's target pins the head SHA; a cluster operation's target names
 the namespace. An earlier confirmation of findings approves no write. Report each
@@ -67,20 +78,22 @@ defined once, where they are produced:
 
 | Stage | Result | Defined in |
 |---|---|---|
-| Fetch | PR context: repository, changeRequest, files, diff, linkedIssues, jiraKeys, existingComments, existingReviews, ciStatus | `workflows/fetch-github.md` |
-| Analysis | Review draft: changeRequest, summary, verdict, findings, edited | `workflows/review-code.md` |
+| Fetch | PR context: repository, changeRequest, files, diff, linkedIssues, jiraKeys, existingComments, existingReviews, ciStatus, specSource | `workflows/fetch-github.md` |
+| Analysis | Review draft: changeRequest, summary, verdict, findings, edited, worktreePath | `workflows/review-code.md` |
 | Operator testing | Subject, per-check results, verdict, cluster state, cleanup | `workflows/review-operator-pr.md` |
 
 ## Scripts and references
 
 - `scripts/fetch_pr_context.py` deterministically builds the PR context as one
   JSON object with no envelope.
-- `references/review-perspectives.md` routes optional specialist review lenses.
+- `references/review-perspectives.md` routes extra lenses once the default team
+  is not enough.
 - `references/operator-pr-images.md` defines operator bundle/image extraction.
 
 ## Completion
 
-Complete when the report names the head SHA reviewed, presents the edited
-draft, gives the outcome of every approved write with its target, includes the
-cluster check results when operator testing ran, and states every skipped check
-or cleanup action with its reason.
+Complete when the report names the head SHA reviewed, has presented the
+`/code-review` Standards and Spec reports, presents the edited draft, gives the
+outcome of every approved write with its target, includes the cluster check
+results when operator testing ran, and states every skipped check or cleanup
+action with its reason.

@@ -1,12 +1,12 @@
 # Code Review Perspectives
 
-Thin router for review focus. Examples of perspectives and the signals that suggest them — starting points, not a fixed roster. Choose perspectives that fit the PR's actual content. Invent new ones when the PR calls for it.
+Thin router for extra review focus after the default `/code-review` team.
+Starting points, not a fixed roster. Load this when the PR is not very small, or
+the user named extras. Spec coverage lives in `/code-review`; do not run a third
+Requirements pass.
 
-**Do not hardcode specialist skill names here.** Specialist domain knowledge lives in whatever skill the user names when asked.
-
-## Specialist skills (always ask)
-
-Early in the review — after fetch/context, before deep analysis — **always ask** the user which installed skills (if any) to invoke for this review. "None" is a valid answer. Then invoke only what they named; do not invent a default specialist list.
+Specialist domain knowledge lives in whatever skill the user already named. Do
+not invent a default specialist list.
 
 ## Common perspectives
 
@@ -14,7 +14,7 @@ Early in the review — after fetch/context, before deep analysis — **always a
 |-------------|-------|-----------------|
 | **Correctness** | Logic bugs, edge cases, error handling, off-by-ones, null/undefined paths | "Find bugs that would reach production. Ignore style." |
 | **Security** | Injection vectors, auth/authz gaps, secrets exposure, input validation | "Flag vulnerabilities with severity ratings." |
-| **Requirements** | Coverage of linked issues, test adequacy, scope gaps | "Check every linked requirement. Note what's addressed, tested, and missing." |
+| **Adversarial** | Abuse of a new script, hook, parser, or path/auth handling | "Break the new surface. Assume hostile input." |
 | **Architecture** | Module boundaries, coupling, abstraction levels, extensibility | "Evaluate structural impact. Is this change in the right place?" |
 | **Performance** | Hot paths, query patterns, algorithmic complexity, caching | "Flag measurable performance risks." |
 | **Compatibility** | Public API surface, breaking changes, deprecations | "Determine if changed symbols are public-facing before flagging." |
@@ -27,21 +27,23 @@ Use these as hints, not rules. A PR may need perspectives not listed here, or ma
 |--------|----------|---------|
 | Changes span 2+ modules/packages | Architecture | `src/api/` + `src/worker/` |
 | New files created | Architecture | New module, new component |
+| Diff adds a script, hook, parser, or path/auth handling | Adversarial | New CLI flag parser, webhook signature check, skill path join |
+| README-only changes | skip Adversarial | docs-only PR |
 | Changed paths match DB/query patterns | Performance | `**/model*`, `**/migration*`, `**/schema*` |
 | Keywords in title/body | Performance | `optimization`, `latency`, `cache`, `slow` |
 | Changed paths match API surface | Compatibility | `**/api/**`, `**/proto/**`, `**/openapi*` |
 | Package version changes | Compatibility | `package.json`, `pyproject.toml` version bumps |
 | Labels | Varies | `refactor` → Architecture, `breaking` → Compatibility |
-| Linked issues exist | Requirements | Any `Fixes #N` or Jira key in the body |
 
 ## Choosing perspectives
 
-Read the PR's diff, metadata, and linked issues. Create perspectives based on what matters most for this specific change — the examples above are a starting point, not a menu to pick from.
+Read the PR's diff, metadata, and `specSource`. Create perspectives based on what matters most for this specific change — the examples above are a starting point, not a menu to pick from.
 
 ## Reviewer coordination
 
-When using multiple reviewers:
+When using extra reviewers beyond the default `/code-review` team:
 
-- Each gets the diff, linked requirements, and their focus area
-- Instruct them to read source at HEAD, not just the diff
-- Encourage cross-checking — reviewers should challenge overlapping or contradictory findings
+- The parent creates the worktree when needed and passes its path
+- Each extra reviewer gets the diff, `files[]`, `specSource`, and their focus
+- They read source at HEAD and verify; they do not draft GitHub review prose
+- Reviewers should challenge overlapping or contradictory findings

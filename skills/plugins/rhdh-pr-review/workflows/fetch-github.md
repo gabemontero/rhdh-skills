@@ -45,6 +45,9 @@ existingReviews: [{user, state, body}, ...]
 ciStatus: "pass" | "fail" | "pending" | "unknown"
 ```
 
+After the linked-issues ask below, carry `specSource` with that context: the
+linked issue bodies, or the PR body.
+
 ## Linked issues
 
 `linkedIssues` carries the title, body, labels, and state of each GitHub issue
@@ -52,6 +55,11 @@ the PR body references — enough for most reviews. When a review needs the full
 issue detail, including its comment thread and resolved workspace, invoke
 `/rhdh-forge` by name with the issue reference. Do not add issue parsing to this
 workflow.
+
+When `linkedIssues` is empty, ask once whether there is a spec or issue to
+judge against. If the author points at none, the PR body is the contract. Carry
+that choice forward as `specSource` — the linked issue bodies, or the PR body —
+into `/code-review` Spec. Spec still runs; the review does not wait on an issue.
 
 ## Jira keys
 
@@ -63,12 +71,12 @@ workflow.
 
 ## CI status
 
-`ciStatus` comes from the check rollup, which serves a cached view. Before
-reporting a check as failing or missing in the review, confirm it against the
-runs on the head branch. `/rhdh-forge` owns those `gh` read patterns and the
-failed-log commands.
+`ciStatus` comes from `gh pr checks`. When it is `unknown`, run `gh pr checks`
+on the PR before treating CI as missing or failed. `/rhdh-forge` owns failed-log
+reads.
 
 ## After fetching
 
 Proceed to the workflow the router selected (typically `review-code.md`). Carry
-the complete context forward — downstream workflows read these fields by name.
+the complete context forward, including `specSource` — downstream workflows read
+these fields by name.

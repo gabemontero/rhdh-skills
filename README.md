@@ -7,8 +7,9 @@ behind a small set of task-oriented interfaces.
 
 ## Install
 
-Install the pack and the two external skills it depends on. Each command opens
-the skills wizard, which asks where to put them:
+Install the pack and the three external skills it depends on. The second
+command is one source for `/grilling`, `/code-review`, and `/handoff`. Each
+command opens the skills wizard, which asks where to put them:
 
 ```bash
 npx skills add redhat-developer/rhdh-skills --global
@@ -78,11 +79,12 @@ there is no shared runtime package, provided anything it invokes is also present
 skill it did not install from one you wrote and kept, so removing anything else
 is yours to do.
 
-Two skills come from outside this repository and are required rather than
+Three skills come from outside this repository and are required rather than
 optional. `/grilling` supplies the interview discipline that skill authoring and
-Jira creation depend on, so those flows stop rather than guess. `/handoff` is
-what carries context into a later session, which is why this pack ships no
-artifact store of its own.
+Jira creation depend on, so those flows stop rather than guess. `/code-review`
+is required on every `/rhdh-pr-review` run, so a missing install stops rather
+than substituting. `/handoff` is what carries context into a later session,
+which is why this pack ships no artifact store of its own.
 
 Free-form GitHub, GitLab, Jira, and Slack prose goes through `/prose-editing`
 exactly once at its final composer. Structured payloads, commands, generated
