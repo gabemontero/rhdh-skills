@@ -29,7 +29,7 @@ NAMED_INVOCATION = re.compile(
     r"""(?:^|(?<=[\s(\[`'"]))/([a-z0-9]+(?:-[a-z0-9]+)*)(?![\w-])(?![/.])""",
     re.MULTILINE,
 )
-EXTERNAL_SKILLS = {"grilling", "handoff"}
+EXTERNAL_SKILLS = {"code-review", "grilling", "handoff"}
 RETIRED_SKILLS = {"humanizer"}
 # A bundled script reading a file that ships *with it*, such as
 # `_DATA_DIR / "jql-release.md"`. Anchored to the handful of names that mean

@@ -12,7 +12,7 @@ uv run pytest
 ```
 
 For end-to-end skill use, install the complete pack documented in
-[README.md](README.md), including `/grilling` and `/handoff`.
+[README.md](README.md), including `/grilling`, `/code-review`, and `/handoff`.
 
 ## Choose the owning module
 
@@ -149,7 +149,7 @@ skill aliases and a mixed old/new catalog are intentionally excluded.
 
 After the breaking branch is merged and tagged, a maintainer signs in at
 `https://skills.sh/packs/create`, creates the `RHDH complete` pack from the
-tagged repository plus `grilling` and `handoff`, and records the resulting
+tagged repository plus `grilling`, `code-review`, and `handoff`, and records the resulting
 `https://skills.sh/p/<pack-id>` URL in the setup catalog. Packs are unlisted,
 not access-controlled, so never include credentials or private files. Until
 that URL exists, `/setup-rhdh-skills` emits the equivalent two-source install

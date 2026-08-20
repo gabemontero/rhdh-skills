@@ -6,6 +6,10 @@
     "url": null,
     "requiredExternalSkills": [
       {
+        "name": "code-review",
+        "source": "mattpocock/skills"
+      },
+      {
         "name": "grilling",
         "source": "mattpocock/skills"
       },
@@ -123,6 +127,17 @@
       "requiresExternalSkills": []
     },
     {
+      "name": "rhdh-operator-pr-test",
+      "category": "plugins",
+      "invocation": "model",
+      "requiresSkills": [
+        "mutation-gate",
+        "rhdh-forge",
+        "prose-editing"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
       "name": "rhdh-plugin-authoring",
       "category": "plugins",
       "invocation": "model",
@@ -202,7 +217,9 @@
       "optionalSkills": [
         "rhdh-forge"
       ],
-      "requiresExternalSkills": []
+      "requiresExternalSkills": [
+        "code-review"
+      ]
     },
     {
       "name": "rhdh-test-placement",

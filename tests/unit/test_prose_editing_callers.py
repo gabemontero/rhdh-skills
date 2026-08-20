@@ -168,7 +168,7 @@ def _assert_static_template(report: dict[str, object]) -> None:
     ("relative", "register", "expected_calls"),
     [
         ("skills/plugins/rhdh-pr-review/workflows/review-code.md", "flavored", 1),
-        ("skills/plugins/rhdh-pr-review/workflows/review-operator-pr.md", "flavored", 1),
+        ("skills/plugins/rhdh-operator-pr-test/workflows/test-operator-pr.md", "flavored", 1),
         ("skills/jira/rhdh-jira-create/workflows/create-issue.md", "flavored", 2),
         ("skills/jira/rhdh-jira-update/workflows/update-issue.md", "flavored", 1),
         ("skills/jira/rhdh-jira-refine/workflows/refine-issues.md", "flavored", 1),

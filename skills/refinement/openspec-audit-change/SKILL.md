@@ -4,9 +4,9 @@ description: >-
   Adversarially audits an OpenSpec change's artifacts against each other —
   and lightly against the codebase and repository conventions — for
   cross-artifact consistency before implementation. Use for "audit this
-  change", "run the audit", or when reviewing an OpenSpec pull request. This
-  is pre-implementation artifact coherence; for post-implementation
-  code-vs-artifact verification, use openspec-verify-change instead.
+  change" or "run the audit". This is pre-implementation artifact
+  coherence; for post-implementation code-vs-artifact verification, use
+  openspec-verify-change instead.
 compatibility: "openspec CLI preferred; filesystem fallback supported under openspec/changes/<name>/ when the CLI is unavailable."
 ---
 

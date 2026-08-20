@@ -66,9 +66,10 @@ model-invoked skill, the way `clean-prose` delegates to `prose-editing`;
 promoted skill is model-invoked and omits both flags. Every promoted skill has
 an `agents/openai.yaml` interface entry.
 
-The complete pack also requires two external skills. Creation and interview
-flows use `/grilling`; `/handoff` carries context into a later session, which is
-why no artifact store does.
+The complete pack also requires three external skills. Creation and interview
+flows use `/grilling`; every `/rhdh-pr-review` run uses `/code-review`;
+`/handoff` carries context into a later session, which is why no artifact
+store does.
 
 Keep drafts and retired skills outside the promoted discovery root:
 

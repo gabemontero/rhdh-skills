@@ -118,9 +118,9 @@ def test_repository_catalog_exposes_the_approved_composable_skill_set():
     assert set(report["promotedSkills"]) == {entry["name"] for entry in catalog["skills"]}
 
     # These two are contracts rather than inventory: exactly three entry points are
-    # human-invoked, and the pack depends on exactly two external skills.
+    # human-invoked, and the pack depends on exactly three external skills.
     assert set(report["humanInvokedSkills"]) == {"ask-rhdh", "setup-rhdh-skills", "clean-prose"}
-    assert set(report["requiredExternalSkills"]) == {"grilling", "handoff"}
+    assert set(report["requiredExternalSkills"]) == {"code-review", "grilling", "handoff"}
     assert every_promoted_skill_lives_in_a_domain_category(catalog)
 
 
@@ -142,6 +142,39 @@ def test_repository_satisfies_every_catalog_rule():
     report = json.loads(result.stdout)
     assert report["valid"] is True, sorted({error["code"] for error in report["errors"]})
     assert result.returncode == 0
+
+
+def test_operator_pr_test_is_split_from_pr_review():
+    """Cluster test is its own promoted skill; code review keeps /code-review."""
+    catalog = json.loads(
+        (
+            PROJECT_ROOT / "skills" / "meta" / "setup-rhdh-skills" / "assets" / "catalog.json"
+        ).read_text(encoding="utf-8")
+    )
+    by_name = {entry["name"]: entry for entry in catalog["skills"]}
+    assert "rhdh-operator-pr-test" in by_name
+    operator = by_name["rhdh-operator-pr-test"]
+    review = by_name["rhdh-pr-review"]
+
+    assert operator["category"] == "plugins"
+    assert operator["invocation"] == "model"
+    assert set(operator["requiresSkills"]) == {"mutation-gate", "rhdh-forge", "prose-editing"}
+    assert operator.get("optionalSkills", []) == []
+    assert operator.get("requiresExternalSkills", []) == []
+
+    assert "code-review" in review["requiresExternalSkills"]
+    assert "rhdh-operator-pr-test" not in review.get("requiresSkills", [])
+    assert "rhdh-operator-pr-test" not in review.get("optionalSkills", [])
+
+    root = PROJECT_ROOT
+    assert not (root / "skills/plugins/rhdh-pr-review/workflows/review-operator-pr.md").is_file()
+    assert not (root / "skills/plugins/rhdh-pr-review/references/operator-pr-images.md").is_file()
+    assert (root / "skills/plugins/rhdh-operator-pr-test/SKILL.md").is_file()
+    assert (root / "skills/plugins/rhdh-operator-pr-test/workflows/test-operator-pr.md").is_file()
+    assert (
+        root / "skills/plugins/rhdh-operator-pr-test/references/operator-pr-images.md"
+    ).is_file()
+    assert (root / "skills/plugins/rhdh-operator-pr-test/agents/openai.yaml").is_file()
 
 
 def test_in_progress_skills_use_the_internal_root_and_metadata_gate(tmp_path):
