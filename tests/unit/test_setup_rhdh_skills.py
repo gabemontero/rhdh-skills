@@ -76,9 +76,10 @@ def test_doctor_discovers_dependencies_across_supported_host_layouts(tmp_path):
     report = json.loads(result.stdout)
     assert "contract" not in report
     assert set(report["installedSkills"]) == {"ask-rhdh", "grilling", "mutation-gate"}
-    # handoff is required but not present in this fixture, so doctor must report it
-    # rather than silently passing: three skills route the user to it.
+    # code-review and handoff are required but not present in this fixture, so
+    # doctor must report them rather than silently passing.
     assert report["requiredExternalSkills"] == {
+        "code-review": "missing",
         "grilling": "installed",
         "handoff": "missing",
     }
@@ -145,7 +146,9 @@ def test_install_plan_fallback_includes_the_repo_and_the_external_source():
         "mattpocock/skills",
     ]
     assert operations[0]["command"][4:6] == ["--skill", "*"]
-    assert ["--skill", "grilling", "--skill", "handoff"] == operations[1]["command"][4:8]
+    assert ["--skill", "code-review", "--skill", "grilling", "--skill", "handoff"] == operations[1][
+        "command"
+    ][4:10]
 
 
 def test_apply_runs_nothing_until_the_stated_plan_is_confirmed(monkeypatch):
