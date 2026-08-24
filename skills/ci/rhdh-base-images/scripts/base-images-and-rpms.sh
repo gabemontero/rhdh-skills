@@ -272,12 +272,19 @@ open_automation_pr_in_browser() {
     popd >/dev/null
 }
 
+# rpm-lockfile-prototype logs this when a binary RPM has no matching source RPM
+# in repo metadata (common for kernel-headers, efi-srpm-macros). The binary
+# lockfile is still valid; never surface those lines to the agent.
+filter_rpm_lockfile_source_warnings() {
+    grep -viE -- 'no sources found for |no matching sources' || true
+}
+
 update_rpm_lockfile() {
     local repo_dir="$1"
     local kind="$2"
     local rpm_tool="$3"
     local branch="$4"
-    local containerfile
+    local containerfile rpm_err rpm_rc
     containerfile=$(rpm_containerfile_for "${repo_dir}" "${kind}")
 
     [[ -f "${repo_dir}/${containerfile}" ]] || die "${repo_dir}: missing ${containerfile}"
@@ -291,8 +298,14 @@ update_rpm_lockfile() {
     fi
 
     pushd "${repo_dir}" >/dev/null
-    "${rpm_tool}" -f "${containerfile}" rpms.in.yaml \
-        || warn "rpm-lockfile-prototype failed for ${repo_dir}; keeping existing rpms.lock.yaml"
+    rpm_err=$(mktemp)
+    rpm_rc=0
+    "${rpm_tool}" -f "${containerfile}" rpms.in.yaml 2>"${rpm_err}" || rpm_rc=$?
+    filter_rpm_lockfile_source_warnings <"${rpm_err}" >&2
+    rm -f "${rpm_err}"
+    if [[ ${rpm_rc} -ne 0 ]]; then
+        warn "rpm-lockfile-prototype failed for ${repo_dir}; keeping existing rpms.lock.yaml"
+    fi
     commit_push_rpm_lockfile "${branch}"
     popd >/dev/null
 }
@@ -515,6 +528,14 @@ go_mod_language_version() {
     echo "${major}.${minor}.0"
 }
 
+# Return 0 if version $1 is greater than or equal to version $2.
+# Accepts optional "go" prefix. Empty operands are not greater-or-equal.
+go_version_gte() {
+    local left="${1#go}" right="${2#go}"
+    [[ -n "${left}" && -n "${right}" ]] || return 1
+    [[ "$(printf '%s\n%s\n' "${left}" "${right}" | sort -V | tail -n1)" == "${left}" ]]
+}
+
 update_operator_go_mod() {
     local repo_dir="$1"
     local branch="$2"
@@ -554,18 +575,36 @@ update_operator_go_mod() {
 
     go_lang=$(go_mod_language_version "${go_full}")
     current_toolchain=$(grep -E '^toolchain ' go.mod 2>/dev/null | awk '{print $2}' || true)
-    if [[ "${current_toolchain}" == "go${go_full}" ]] \
-        && grep -qE "^go ${go_lang}$" go.mod 2>/dev/null; then
-        log "Go toolchain: already aligned with go${go_full}"
+    local current_go current_plain bump_go=0 bump_toolchain=0
+    current_go=$(grep -E '^go ' go.mod 2>/dev/null | awk '{print $2}' || true)
+    current_plain="${current_toolchain#go}"
+
+    # Never lower go.mod to match an older toolset image. A newer toolchain
+    # (for example from Renovate) is valid in Konflux local-toolchain mode.
+    if [[ -z "${current_go}" ]] || ! go_version_gte "${current_go}" "${go_lang}"; then
+        bump_go=1
+    fi
+    if [[ -z "${current_plain}" ]] || ! go_version_gte "${current_plain}" "${go_full}"; then
+        bump_toolchain=1
+    fi
+
+    if [[ ${bump_go} -eq 0 && ${bump_toolchain} -eq 0 ]]; then
+        if [[ "${current_plain}" == "${go_full}" ]]; then
+            log "Go toolchain: already aligned with go${go_full}"
+        else
+            log "Go toolchain: keeping ${current_toolchain} (newer than image go${go_full}; will not downgrade)"
+        fi
         popd >/dev/null
         return 0
     fi
 
-    log "Go toolchain: updating go.mod to go ${go_lang} / toolchain go${go_full}"
-    sed -i \
-        -e "s/^go .*/go ${go_lang}/" \
-        -e "s/^toolchain .*/toolchain go${go_full}/" \
-        go.mod
+    log "Go toolchain: updating go.mod to go ${go_lang} / toolchain go${go_full} (forward only)"
+    if [[ ${bump_go} -eq 1 ]]; then
+        sed -i -e "s/^go .*/go ${go_lang}/" go.mod
+    fi
+    if [[ ${bump_toolchain} -eq 1 ]]; then
+        sed -i -e "s/^toolchain .*/toolchain go${go_full}/" go.mod
+    fi
 
     commit_push_paths "${branch}" "chore: align go.mod with ubi9/go-toolset go${go_full} [skip-build]" go.mod
     popd >/dev/null

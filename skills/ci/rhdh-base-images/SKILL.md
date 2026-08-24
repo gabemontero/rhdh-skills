@@ -50,8 +50,14 @@ tree is clean before writing.
   GitLab scripts branch in `references/repos.md`.
 - Keep base-image UBI minors aligned with RPM repository URLs.
 - On RHDH, update Node headers when the builder image changes Node.
-- On rhdh-operator `main`, align `go.mod` with the Go toolset image.
+- On rhdh-operator `main`, raise `go.mod` to the Go toolset image when the
+  image is newer. Never lower `go` or `toolchain` to match an older image;
+  a newer pin (for example from Renovate) is valid.
 - Exclude RHDH `e2e-tests/` and `.ci/` from image scans.
+- Ignore `rpm-lockfile-prototype` lines matching `No sources found for` or
+  "no matching sources". Those source RPMs are often unpublished; the binary
+  lockfile is still valid. Do not report them as unread, failed, or remaining
+  risks.
 
 Another skill invokes `/rhdh-base-images` by name and uses what it reports; it
 never reaches for these script paths.
@@ -61,7 +67,8 @@ never reaches for these script paths.
 An analysis is complete when every repository in scope is named with its current
 and latest tag, UBI skew and toolchain drift are stated or stated as none, and
 every registry, lockfile, or branch the scan could not read is named as unread
-instead of reported as current.
+instead of reported as current. Filtered `No sources found for` /
+"no matching sources" lines are not unread and are omitted from the report.
 
 An update is complete when the target branch was verified to exist against a
 clean working tree before any edit, every approved operation has been reported by

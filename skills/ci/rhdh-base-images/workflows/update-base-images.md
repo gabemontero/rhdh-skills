@@ -150,6 +150,8 @@ git push origin <chore/automated-update-base-images-*>   # same PR as base image
 
 When no base-images PR exists (e.g. `--skip-base`), the script uses `chore/automated-update-rpm-lockfile/<branch>` and opens a PR.
 
+`rpm-lockfile-prototype` often logs `No sources found for <pkg>` when the matching source RPM is unpublished (commonly `kernel-headers` and `efi-srpm-macros`). The bundled script drops those lines. Never list them as remaining risks; Konflux still consumes the binary lockfile.
+
 ### Node headers (rhdh only)
 
 When the `ubi9/nodejs-*` builder image in `build/containerfiles/Containerfile` ships a different Node version than `.nvmrc` / `.nvm/releases/`, the script:
@@ -163,12 +165,14 @@ See [rhdh `.nvm/releases/README.adoc`](https://github.com/redhat-developer/rhdh/
 
 ### Go toolchain (rhdh-operator, main only)
 
-On **main** only (not `release-*`), after base image bumps, reads `go version` from the `ubi9/go-toolset` image in `.rhdh/docker/Dockerfile` and updates `go.mod`:
+On **main** only (not `release-*`), after base image bumps, reads `go version` from the `ubi9/go-toolset` image in `.rhdh/docker/Dockerfile` and updates `go.mod` **only when that version is newer** than the current `go` / `toolchain` lines:
 
 ```text
 go 1.26.0
 toolchain go1.26.4
 ```
+
+Do not downgrade. If `go.mod` already pins a newer toolchain (for example `go1.26.6` from Renovate while the image ships `go1.26.5`), leave it. Konflux builds with the local toolchain; matching the image is not required.
 
 ## Anti-patterns
 
@@ -176,6 +180,8 @@ toolchain go1.26.4
 - Running on a branch that does not exist in one of the three repos.
 - Omitting `registry.redhat.io` login before base image updates.
 - Committing `rpms.lock.yaml` without checking the base image minor (e.g. UBI `9.8`) still matches `rpms.in.yaml` repo URLs.
+- Treating `rpm-lockfile-prototype` `No sources found for` / "no matching sources" warnings as a failure or remaining risk. The source RPM is often unpublished; the lockfile is still valid.
+- Lowering `go.mod` `toolchain` (or `go`) to match an older `ubi9/go-toolset` image. Keep the newer pin.
 
 ## Additional resources
 
