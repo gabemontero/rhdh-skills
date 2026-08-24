@@ -22,13 +22,17 @@ transcript, and not optional narration.
 
 ## Route
 
-Run the bundled script for every read or write:
+Run the bundled helper that ships with this skill. Resolve
+`scripts/openspec-journal.py` next to this skill's `SKILL.md` (the host skill
+install path). Do **not** look for it under the product repo's `scripts/` —
+that path is never installed. Keep the product repo as the working directory
+so the helper can find `openspec/changes/`:
 
 ```bash
-python3 scripts/openspec-journal.py <change> <event> [k=v ...]
-python3 scripts/openspec-journal.py <change> show [--limit N]
-python3 scripts/openspec-journal.py <change> doctor
-python3 scripts/openspec-journal.py --schema
+python3 <skill-dir>/scripts/openspec-journal.py <change> <event> [k=v ...]
+python3 <skill-dir>/scripts/openspec-journal.py <change> show [--limit N]
+python3 <skill-dir>/scripts/openspec-journal.py <change> doctor
+python3 <skill-dir>/scripts/openspec-journal.py --schema
 ```
 
 Run with no arguments for the full usage contract, and `--schema` for the
@@ -58,6 +62,10 @@ Events describe things that already happened — log `change.created` after
 rejected (exit 2) above 200 characters so the caller rewrites shorter rather
 than truncating silently; move long content into `design.md` or an ADR and
 point at it (`output="See design.md §3 for full rationale."`).
+
+`--input-file` / `--output-file` paths must resolve under the change
+directory. Change names `.` and `archive` are rejected. Reserved fields
+`ts`, `event`, and `phase` cannot be forged via `k=v`.
 
 ## Precompact hook
 

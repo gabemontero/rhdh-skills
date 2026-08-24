@@ -477,7 +477,9 @@
       "name": "openspec-onboard",
       "category": "refinement",
       "invocation": "model",
-      "requiresSkills": [],
+      "requiresSkills": [
+        "rhdh-spec-driven-schema"
+      ],
       "requiresExternalSkills": [
         "grilling"
       ]

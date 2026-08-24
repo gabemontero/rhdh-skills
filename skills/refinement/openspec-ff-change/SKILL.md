@@ -1,15 +1,11 @@
 ---
 name: openspec-ff-change
 description: >-
-  Proposes an OpenSpec change and generates every artifact it needs for
-  implementation — proposal, specs, design, tasks — in one pass, for a
-  brand-new or an existing change, with progress tracked via TodoWrite. Use
-  for "propose a change for X", "I want to build X, write it up", "give me a
-  proposal with design and tasks ready to implement", "fast-forward this
-  change", "generate all the artifacts now", or "get this ready to
-  implement" — including someone's first change. For one artifact at a time,
-  see openspec-continue-change; to scaffold the folder without writing
-  anything, see openspec-new-change.
+  Fast-forwards an OpenSpec change by generating every remaining artifact
+  needed before implementation — proposal, specs, design, and tasks — in one
+  pass, for a brand-new or an existing change, with progress tracked via
+  TodoWrite. Use for "fast-forward this change", "generate all the artifacts
+  now", "create every remaining artifact", or "get this ready to implement".
 compatibility: "Requires the openspec CLI on PATH."
 ---
 
@@ -20,30 +16,37 @@ without pausing between them, then hand off to implementation.
 
 ## Steps
 
-1. **Get the change name or description.** Derive a kebab-case name from a
+1. **Ensure the project schema is installed.** Check whether
+   `openspec/config.yaml` and `openspec/schemas/rhdh-spec-driven/` already
+   exist. Only if either is missing, invoke `/rhdh-spec-driven-schema` and run
+   its project-install step. Then confirm with `openspec schemas --json`.
+2. **Get the change name or description.** Derive a kebab-case name from a
    description if no name was given (e.g. "add user authentication" ->
    `add-user-auth`); do not proceed without knowing what to build.
-2. **Create the change directory** (skip if it already exists — see
-   Guardrails): `openspec new change "<name>"`.
-3. **Get the build order:**
+3. **Create the change directory** (skip if it already exists — see
+   Guardrails): `openspec new change "<name>"` (default schema from
+   `openspec/config.yaml`, or pass `--schema rhdh-spec-driven`).
+4. **Get the build order:**
 
    ```bash
    openspec status --change "<name>" --json
    ```
 
    Read `applyRequires` (artifact IDs needed before implementation) and
-   `artifacts` (status + dependencies for each).
-4. **Create every required artifact in dependency order.** Track progress
+   `artifacts` (status + dependencies for each). Specs and design are
+   siblings: after proposal, either may be ready; create them in either order
+   once their dependencies are satisfied.
+5. **Create every required artifact in dependency order.** Track progress
    with TodoWrite. For each artifact whose dependencies are satisfied, follow
    the artifact creation loop in `/rhdh-spec-driven-schema` — read
    dependencies, use the template,
    apply context/rules without copying them into the file, write to
    `outputPath`. Re-check status after each write; stop once every ID in
    `applyRequires` reports `status: "done"`.
-5. **If an artifact needs input the description didn't cover,** ask — but
+6. **If an artifact needs input the description didn't cover,** ask — but
    prefer a reasonable default to keep momentum; this skill exists to avoid
    stopping between artifacts.
-6. **Show final status:** `openspec status --change "<name>"`.
+7. **Show final status:** `openspec status --change "<name>"`.
 
 ## Output
 

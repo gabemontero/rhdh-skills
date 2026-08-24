@@ -8,7 +8,7 @@ changes move through the same rough shape.
 
 ## At a glance
 
-![Refinement workflow: feature description in, OpenSpec generates proposal/design/specs, Grill-Me reviews the artifacts, OpenSpec generates tasks](refinement-workflow.jpeg)
+![Refinement workflow: feature description in, OpenSpec generates proposal/design/specs, Grill-Me reviews the artifacts, OpenSpec generates tasks](refinement-workflow.png)
 
 This is the concept, not the literal dependency graph: in this repo `specs`
 and `design` are siblings that each depend only on `proposal`, not on each
@@ -48,7 +48,7 @@ pace and framing:
 | --- | --- |
 | `/openspec-new-change` | Creates the change directory and stops before drafting anything. |
 | `/openspec-continue-change` | Creates exactly the next ready artifact, one at a time. |
-| `/openspec-ff-change` | Propose a change and generate every artifact in one pass — for a brand-new change or to finish an existing one. |
+| `/openspec-ff-change` | Generate every remaining artifact in one pass — for a brand-new change or to finish an existing one. |
 
 ## Closing a change
 
@@ -72,8 +72,8 @@ pace and framing:
 through the full cycle above — explore, create, propose, implement, archive —
 narrating each step against the user's own codebase, and ends by naming which
 of the skills above to reach for next. Use it for "walk me through OpenSpec"
-rather than as a dependency of the other ten skills; it does not invoke
-them by name, it teaches the same rhythm they implement.
+rather than as a dependency of the other ten skills; it invokes those skills
+by name so the walkthrough matches the triggers the user will use later.
 
 ## Dependencies
 

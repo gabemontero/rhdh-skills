@@ -60,9 +60,50 @@ def test_reserved_fields_cannot_be_forged(workspace: Path) -> None:
         "output=y",
         "event=archive",
         "ts=1970-01-01T00:00:00Z",
+        "phase=archive",
     )
     assert result.returncode == 2
     assert not (workspace / "openspec/changes/data-export/journal.jsonl").exists()
+
+
+@pytest.mark.parametrize("bad", [".", "archive"])
+def test_change_name_cannot_be_changes_or_archive_root(workspace: Path, bad: str) -> None:
+    result = run(workspace, bad, "decision", "input=x", "output=y")
+    assert result.returncode != 0
+    assert not (workspace / "openspec/changes/journal.jsonl").exists()
+    assert not (workspace / "openspec/changes/archive/journal.jsonl").exists()
+
+
+def test_input_file_must_stay_under_change_dir(workspace: Path, tmp_path: Path) -> None:
+    outside = tmp_path / "outside.txt"
+    outside.write_text("secret summary that is short", encoding="utf-8")
+    result = run(
+        workspace,
+        "data-export",
+        "decision",
+        f"--input-file={outside}",
+        "output=y",
+    )
+    assert result.returncode != 0
+    assert not (workspace / "openspec/changes/data-export/journal.jsonl").exists()
+
+
+def test_input_file_under_change_dir_is_accepted(workspace: Path) -> None:
+    inside = workspace / "openspec/changes/data-export/note.txt"
+    inside.write_text("Chose CSV", encoding="utf-8")
+    result = run(
+        workspace,
+        "data-export",
+        "decision",
+        f"--input-file={inside}",
+        "output=Done",
+    )
+    assert result.returncode == 0, result.stderr
+    record = json.loads(
+        (workspace / "openspec/changes/data-export/journal.jsonl").read_text().strip()
+    )
+    assert record["input"] == "Chose CSV"
+    assert record["phase"] == "any"
 
 
 def test_unknown_extra_field_rejected(workspace: Path) -> None:

@@ -62,13 +62,14 @@ MODE_VALUES = {
 }
 
 # Fields the caller may never forge via k=v: `ts` is stamped, `event` is the
-# positional verb. `phase` stays overridable — it is a documented, low-stakes
-# categorization consumed before this check (see cmd_add).
-RESERVED_FIELDS = {"ts", "event"}
+# positional verb, and `phase` is derived from the event vocabulary.
+RESERVED_FIELDS = {"ts", "event", "phase"}
 # The only free-form extra fields accepted beyond the per-event vocabulary.
 ALLOWED_EXTRA_FIELDS = {"agents", "ctx_pct"}
 # Archived changes are stored date-prefixed as YYYY-MM-DD-<name>.
 ARCHIVE_DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-")
+# Change names that resolve to the changes root or the archive root itself.
+FORBIDDEN_CHANGE_NAMES = {".", "archive"}
 
 EVENT_DESCRIPTION = {
     "change.created": "OpenSpec change directory just came into being",
@@ -144,7 +145,6 @@ KEY=VALUE FIELDS
     input=<text>     What the user/actor initiated, <=200 chars (REJECTED if longer)
     output=<text>    What actually changed/resulted, <=200 chars (REJECTED if longer)
     actor=<name>     Optional free-form: implementer | verifier | lead | user
-    phase=<p>        Optional override; default derived from event
 
   Event-specific structured fields (machine-readable, no length limit):
     mode=<m>         direct | team        (mode.chosen, task.complete)
@@ -156,7 +156,9 @@ KEY=VALUE FIELDS
     ctx_pct=<int>    Optional on context.compacted: context % at compaction
 
   Use --input-file PATH / --output-file PATH for long summaries (still
-  rejected if >200 chars after newline normalization).
+  rejected if >200 chars after newline normalization). Paths must resolve
+  under the change directory (openspec/changes/<change>/ or its archive
+  location). Reserved fields ts/event/phase cannot be set via k=v.
 
 WRITING STYLE for input/output
   Verb + object + result. One sentence. No "I". No filler.
@@ -253,42 +255,97 @@ def schema_table() -> str:
     return "Event vocabulary:\n" + "\n".join(rows) + "\n" + "\n".join(extras)
 
 
-def journal_path(root: Path, change: str) -> Path:
-    if "/" in change or "\\" in change or ".." in change:
+def _under(path: Path, parent: Path) -> bool:
+    try:
+        path.resolve().relative_to(parent.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def resolve_change_dir(root: Path, change: str) -> Path:
+    """Return the change directory, confined under openspec/changes/."""
+    if (
+        "/" in change
+        or "\\" in change
+        or ".." in change
+        or change in FORBIDDEN_CHANGE_NAMES
+        or not change
+    ):
         raise SystemExit(
             f"Error: change name {change!r} must be a single path component "
-            "(no '/', '\\', or '..')."
+            "(not '.', 'archive', empty, or containing '/', '\\\\', or '..')."
         )
-    change_dir = root / "openspec" / "changes" / change
-    if change_dir.is_dir():
-        return change_dir / "journal.jsonl"
 
-    archive_root = root / "openspec" / "changes" / "archive"
-    direct = archive_root / change
-    if direct.is_dir():
-        return direct / "journal.jsonl"
+    changes_root = (root / "openspec" / "changes").resolve()
+    archive_root = (changes_root / "archive").resolve()
+    candidate = (changes_root / change).resolve()
+
+    if candidate == changes_root or candidate == archive_root:
+        raise SystemExit(
+            f"Error: change name {change!r} resolves to the changes or archive "
+            "root, not a change directory."
+        )
+
+    if candidate.is_dir():
+        if not _under(candidate, changes_root) or candidate == archive_root:
+            raise SystemExit(
+                f"Error: change '{change}' escapes openspec/changes/ (resolved to {candidate})."
+            )
+        # Active change: directly under changes/, not the archive root itself.
+        if candidate.parent == changes_root:
+            return candidate
+        # Allow only when the resolved path is a dated (or named) archive entry.
+        if _under(candidate, archive_root) and candidate != archive_root:
+            return candidate
+        raise SystemExit(
+            f"Error: change '{change}' is not an active or archived change "
+            f"directory under openspec/changes/."
+        )
+
     if archive_root.is_dir():
         matches = sorted(
-            p
+            p.resolve()
             for p in archive_root.iterdir()
             if p.is_dir()
             and (p.name == change or (ARCHIVE_DATE_PREFIX.match(p.name) and p.name[11:] == change))
         )
-        if len(matches) == 1:
-            return matches[0] / "journal.jsonl"
-        if len(matches) > 1:
-            names = ", ".join(p.name for p in matches)
+        confined = [p for p in matches if _under(p, archive_root) and p != archive_root]
+        if len(confined) == 1:
+            return confined[0]
+        if len(confined) > 1:
+            names = ", ".join(p.name for p in confined)
             raise SystemExit(
                 f"Error: ambiguous archived change '{change}'.\n"
                 f"  Multiple matches under archive/: {names}\n"
                 "  Use the full directory name (with date prefix)."
             )
+
     raise SystemExit(
         f"Error: change '{change}' not found.\n"
-        f"  Looked in {change_dir}\n"
+        f"  Looked in {changes_root / change}\n"
         f"  and under {archive_root} (incl. date-prefixed entries)\n"
         "  Create the change directory first, or check the name."
     )
+
+
+def journal_path(root: Path, change: str) -> Path:
+    return resolve_change_dir(root, change) / "journal.jsonl"
+
+
+def read_summary_file(path_str: str, change_dir: Path) -> str:
+    """Read --input-file/--output-file content, confined to the change dir."""
+    path = Path(path_str)
+    if not path.is_absolute():
+        path = Path.cwd() / path
+    resolved = path.resolve()
+    if not _under(resolved, change_dir):
+        raise SystemExit(
+            f"Error: file {path_str!r} must resolve under the change directory ({change_dir})."
+        )
+    if not resolved.is_file():
+        raise SystemExit(f"Error: file {path_str!r} not found.")
+    return resolved.read_text(encoding="utf-8")
 
 
 def cmd_add(
@@ -337,7 +394,7 @@ def cmd_add(
 
     record: dict[str, object] = {
         "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "phase": kv.pop("phase", EVENT_PHASE[event]),
+        "phase": EVENT_PHASE[event],
         "event": event,
     }
     for key in ("ref", "mode", "note", "actor", "name", "kind", "count"):
@@ -385,7 +442,8 @@ def cmd_add(
         record[key] = val
 
     root = find_openspec_root(Path.cwd())
-    target = journal_path(root, change)
+    change_dir = resolve_change_dir(root, change)
+    target = change_dir / "journal.jsonl"
     line = json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n"
     with target.open("a", encoding="utf-8") as fh:
         fh.write(line)
@@ -400,7 +458,7 @@ def cmd_add(
         print()
         print("Next steps:")
         print("  Include journal.jsonl in your next git commit (piggyback).")
-        print(f"  scripts/openspec-journal.py {change} show   Inspect last entries")
+        print(f"  openspec-journal.py {change} show   Inspect last entries")
     return 0
 
 
@@ -586,10 +644,13 @@ def main(argv: list[str]) -> int:
         return cmd_doctor(change)
 
     kv = parse_kv(kv_args)
-    if args.input_file and "input" not in kv:
-        kv["input"] = Path(args.input_file).read_text(encoding="utf-8")
-    if args.output_file and "output" not in kv:
-        kv["output"] = Path(args.output_file).read_text(encoding="utf-8")
+    if args.input_file or args.output_file:
+        root = find_openspec_root(Path.cwd())
+        change_dir = resolve_change_dir(root, change)
+        if args.input_file and "input" not in kv:
+            kv["input"] = read_summary_file(args.input_file, change_dir)
+        if args.output_file and "output" not in kv:
+            kv["output"] = read_summary_file(args.output_file, change_dir)
     return cmd_add(change, verb, kv, args.json, args.verbose, args.allow_truncate)
 
 

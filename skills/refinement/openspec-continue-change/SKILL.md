@@ -1,12 +1,12 @@
 ---
 name: openspec-continue-change
 description: >-
-  Continues an OpenSpec change by creating exactly the next ready artifact,
-  one at a time. Use for "continue this change", "what's next", "create the
-  next artifact", or when the user wants to progress a change step by step
-  rather than generating everything at once. Stops after one artifact; use
-  openspec-ff-change instead when the user wants every remaining artifact
-  created in one pass.
+  Creates exactly the next ready OpenSpec artifact for a change, one at a
+  time — proposal, then specs or design (siblings), then tasks. Use for
+  "what's the next artifact", "create the next artifact", "draft the next
+  OpenSpec file", or when the user wants to progress artifacts step by step
+  rather than generating everything at once. Stops after one artifact. Does
+  not implement code.
 compatibility: "Requires the openspec CLI on PATH."
 ---
 
@@ -27,12 +27,14 @@ stop, so the user reviews each step before the next is generated.
    openspec status --change "<name>" --json
    ```
 
-   Read `schemaName`, `artifacts[].status`, and `isComplete`.
+   Read `schemaName`, `artifacts[].status`, and `isComplete`. Specs and design
+   each depend only on proposal — when both are `ready`, pick one (either
+   order is valid); do not treat YAML list order as a hard dependency.
 3. **Act on status:**
    - **All complete (`isComplete: true`)** — congratulate, show final status,
      suggest implementing (`/openspec-apply-change`) or archiving
      (`/openspec-archive-change`). Stop.
-   - **An artifact is `ready`** — pick the first ready one and create it by
+   - **An artifact is `ready`** — pick one ready artifact and create it by
      following the artifact creation loop in `/rhdh-spec-driven-schema`.
      Create exactly one artifact, then stop.
    - **Nothing is ready and nothing is complete** — this should not happen
@@ -49,7 +51,8 @@ continue? Just ask me to continue or tell me what to do next."
 ## Guardrails
 
 - Create exactly one artifact per invocation — never more.
-- Never skip artifacts or create them out of order.
+- Never skip required dependencies; when multiple artifacts are ready (specs
+  and design after proposal), either order is fine.
 - If context for the artifact is unclear, ask before creating it.
 
 ## Completion
