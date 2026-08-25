@@ -281,7 +281,7 @@ class TestBaseImagesAndRpmsScript:
 
     def test_script_pipes_rpm_stderr_through_source_warning_filter(self) -> None:
         script = MAIN_SCRIPT.read_text(encoding="utf-8")
-        assert "filter_rpm_lockfile_source_warnings <\"${rpm_err}\"" in script
+        assert 'filter_rpm_lockfile_source_warnings <"${rpm_err}"' in script
 
     def test_filter_rpm_lockfile_source_warnings_drops_noise(self) -> None:
         function = _extract_bash_function(MAIN_SCRIPT, "filter_rpm_lockfile_source_warnings")
