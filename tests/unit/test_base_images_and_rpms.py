@@ -239,6 +239,27 @@ class TestAnalyzeBaseImagesScript:
         assert "SKIPPED (no well-formed tag" in result.stdout
 
 
+NO_SOURCES_FOUND_FOR = "No sources found for"
+
+
+def _extract_bash_function(script: Path, name: str) -> str:
+    """Return the named top-level `name() { ... }` body from a Bash script."""
+    text = script.read_text(encoding="utf-8")
+    marker = f"{name}() {{"
+    start = text.find(marker)
+    if start < 0:
+        raise AssertionError(f"{name}() not found in {script}")
+    depth = 0
+    for index, char in enumerate(text[start:], start):
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
+    raise AssertionError(f"{name}() is unclosed in {script}")
+
+
 class TestBaseImagesAndRpmsScript:
     """Smoke tests for the orchestrator --analyze flag."""
 
@@ -251,3 +272,70 @@ class TestBaseImagesAndRpmsScript:
         )
         assert result.returncode == 0
         assert "--analyze" in result.stdout
+
+    def test_skill_instructs_ignoring_rpm_source_warnings(self) -> None:
+        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        assert NO_SOURCES_FOUND_FOR in skill
+        assert "no matching sources" in skill
+        assert "Do not report them as unread, failed, or remaining" in skill
+
+    def test_script_pipes_rpm_stderr_through_source_warning_filter(self) -> None:
+        script = MAIN_SCRIPT.read_text(encoding="utf-8")
+        assert 'filter_rpm_lockfile_source_warnings <"${rpm_err}"' in script
+
+    def test_filter_rpm_lockfile_source_warnings_drops_noise(self) -> None:
+        function = _extract_bash_function(MAIN_SCRIPT, "filter_rpm_lockfile_source_warnings")
+        noise = (
+            f"WARNING:rpm_lockfile:{NO_SOURCES_FOUND_FOR} "
+            "kernel-headers-5.14.0-687.41.1.el9_8.x86_64\n"
+            f"WARNING:rpm_lockfile:{NO_SOURCES_FOUND_FOR} efi-srpm-macros-6-4.el9.noarch\n"
+            "note: no matching sources for kernel-headers\n"
+            "error: dnf transaction failed\n"
+        )
+        result = subprocess.run(
+            ["bash", "-c", f"{function}\nfilter_rpm_lockfile_source_warnings"],
+            input=noise,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "error: dnf transaction failed\n"
+
+    def test_skill_forbids_go_toolchain_downgrade(self) -> None:
+        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        assert "Never lower `go` or `toolchain`" in skill
+        script = MAIN_SCRIPT.read_text(encoding="utf-8")
+        assert "will not downgrade" in script
+
+
+class TestGoVersionGte:
+    """Forward-only Go toolchain compares used before editing operator go.mod."""
+
+    @staticmethod
+    def _gte(left: str, right: str) -> int:
+        function = _extract_bash_function(MAIN_SCRIPT, "go_version_gte")
+        quoted_left = "''" if left == "" else left
+        quoted_right = "''" if right == "" else right
+        result = subprocess.run(
+            ["bash", "-c", f"{function}\ngo_version_gte {quoted_left} {quoted_right}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode
+
+    def test_newer_patch_is_gte(self) -> None:
+        assert self._gte("1.26.6", "1.26.5") == 0
+
+    def test_older_patch_is_not_gte(self) -> None:
+        assert self._gte("1.26.5", "1.26.6") == 1
+
+    def test_equal_is_gte(self) -> None:
+        assert self._gte("1.26.5", "1.26.5") == 0
+
+    def test_strips_go_prefix(self) -> None:
+        assert self._gte("go1.26.6", "1.26.5") == 0
+
+    def test_empty_is_not_gte(self) -> None:
+        assert self._gte("", "1.26.5") == 1
