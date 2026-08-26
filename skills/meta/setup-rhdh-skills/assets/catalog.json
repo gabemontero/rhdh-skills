@@ -24,6 +24,7 @@
     "plugins",
     "ci",
     "release",
+    "refinement",
     "reference",
     "meta"
   ],
@@ -394,6 +395,116 @@
       "invocation": "model",
       "requiresSkills": [
         "prose-editing"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-journal",
+      "category": "reference",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "rhdh-spec-driven-schema",
+      "category": "reference",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-new-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [
+        "rhdh-spec-driven-schema"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-continue-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [
+        "rhdh-spec-driven-schema"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-ff-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [
+        "rhdh-spec-driven-schema"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-apply-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [
+        "rhdh-spec-driven-schema",
+        "openspec-journal"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-archive-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "optionalSkills": [
+        "openspec-sync-specs"
+      ],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-bulk-archive-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-explore",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-onboard",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [
+        "rhdh-spec-driven-schema"
+      ],
+      "requiresExternalSkills": [
+        "grilling"
+      ]
+    },
+    {
+      "name": "openspec-sync-specs",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-verify-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "requiresExternalSkills": []
+    },
+    {
+      "name": "openspec-audit-change",
+      "category": "refinement",
+      "invocation": "model",
+      "requiresSkills": [],
+      "optionalSkills": [
+        "rhdh-spec-driven-schema"
       ],
       "requiresExternalSkills": []
     },
